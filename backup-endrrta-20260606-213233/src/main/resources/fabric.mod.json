@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "endrrta",
+	"version": "${version}",
+	"name": "EndrRTA",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/endrrta/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"chihalu.endrrta.EndrRTA"
+		],
+		"client": [
+			"chihalu.endrrta.client.EndrRTAClient"
+		],
+		"fabric-datagen": [
+			"chihalu.endrrta.client.EndrRTADataGenerator"
+		]
+	},
+	"mixins": [
+		"endrrta.mixins.json",
+		{
+			"config": "endrrta.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

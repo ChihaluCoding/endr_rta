@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "endrrta",
+	"version": "${version}",
+	"name": "EndrRTA",
+	"description": "エンダードラゴンRTAの練習を支援するタイマー、HUD、ルート補助、リセット機能を追加します。",
+	"authors": [
+		"chihalu"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/endrrta/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"chihalu.endrrta.EndrRTA"
+		],
+		"client": [
+			"chihalu.endrrta.client.EndrRTAClient"
+		],
+		"fabric-datagen": [
+			"chihalu.endrrta.client.EndrRTADataGenerator"
+		]
+	},
+	"mixins": [
+		"endrrta.mixins.json",
+		"endrrta.client.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
