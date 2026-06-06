@@ -1,5 +1,8 @@
 {
 	"key.endrrta.quick_reset": "クイックリセット",
 	"key.endrrta.config": "EndrRTA 設定を開く",
+	"key.endrrta.pie_chart_toggle": "円グラフを開閉",
+	"key.endrrta.pie_chart_back": "円グラフを1つ戻る",
+	"key.endrrta.pie_chart_root": "円グラフをrootへ戻す",
 	"button.endrrta.seed_reset": "シードリセット"
 }

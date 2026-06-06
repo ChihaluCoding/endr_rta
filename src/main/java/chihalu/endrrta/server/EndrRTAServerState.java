@@ -15,6 +15,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.entity.Relative;
@@ -28,6 +30,7 @@ public final class EndrRTAServerState {
 	private static final @NonNull Set<@NonNull Relative> ABSOLUTE_TELEPORT = Set.of();
 	private static final Map<UUID, RunState> RUNS = new HashMap<>();
 	private static final Set<UUID> VILLAGE_SPAWNED = new HashSet<>();
+	private static final int MIN_SAFE_SURFACE_OFFSET = 5;
 	private static int radarTick;
 
 	private EndrRTAServerState() {
@@ -86,7 +89,12 @@ public final class EndrRTAServerState {
 			return;
 		}
 
-		BlockPos safePos = player.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, village).above();
+		@Nullable BlockPos safePos = safeSurfacePos(player.level(), village);
+		if (safePos == null) {
+			player.sendSystemMessage(Component.literal("[EndrRTA] 村の安全な地表を取得できなかったため、初期移動を中止しました。"));
+			return;
+		}
+
 		player.teleportTo(
 				player.level(),
 				safePos.getX() + 0.5D,
@@ -98,6 +106,15 @@ public final class EndrRTAServerState {
 				false
 		);
 		player.sendSystemMessage(Component.literal("[EndrRTA] 最寄り村へスポーン補正しました。"));
+	}
+
+	private static @Nullable BlockPos safeSurfacePos(ServerLevel level, BlockPos target) {
+		ChunkAccess chunk = level.getChunk(target.getX() >> 4, target.getZ() >> 4, ChunkStatus.FULL, true);
+		int surfaceY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, target.getX() & 15, target.getZ() & 15);
+		if (surfaceY <= level.getMinY() + MIN_SAFE_SURFACE_OFFSET) {
+			return null;
+		}
+		return new BlockPos(target.getX(), surfaceY + 1, target.getZ());
 	}
 
 	private static void handleTimer(ServerPlayer player, RunState run, EndrRTAConfig config) {

@@ -34,6 +34,7 @@ public final class EndrRTAConfigManager {
 		try (Reader reader = Files.newBufferedReader(CONFIG_PATH)) {
 			@Nullable EndrRTAConfig loaded = GSON.fromJson(reader, EndrRTAConfig.class);
 			config = loaded == null ? new EndrRTAConfig() : loaded;
+			config.normalize();
 		} catch (IOException exception) {
 			EndrRTA.LOGGER.warn("EndrRTA 設定を読み込めませんでした。既定値を使用します。", exception);
 			config = new EndrRTAConfig();
@@ -42,6 +43,7 @@ public final class EndrRTAConfigManager {
 
 	public static void save() {
 		try {
+			config.normalize();
 			Files.createDirectories(CONFIG_PATH.getParent());
 			try (Writer writer = Files.newBufferedWriter(CONFIG_PATH)) {
 				GSON.toJson(config, writer);

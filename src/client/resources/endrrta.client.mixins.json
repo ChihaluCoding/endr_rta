@@ -3,7 +3,9 @@
 	"package": "chihalu.endrrta.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"PauseScreenMixin"
+		"MouseHandlerMixin",
+		"PauseScreenMixin",
+		"ProfilerPieChartAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

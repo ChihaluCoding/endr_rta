@@ -57,6 +57,10 @@ public final class RunState {
 		splits.add(new SplitRecord(type, elapsedRtaMillis(), igtTicks));
 	}
 
+	public boolean hasRecordedSplit(@NonNull SplitType type) {
+		return recordedSplits.contains(type);
+	}
+
 	public long elapsedRtaMillis() {
 		if (!running && !stopped) {
 			return 0L;
