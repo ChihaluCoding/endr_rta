@@ -10,6 +10,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -21,9 +22,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -33,7 +31,6 @@ import chihalu.endrrta.config.EndrRTAConfigManager;
 import chihalu.endrrta.server.EndrRTAServerState;
 import chihalu.endrrta.server.RadarTarget;
 import chihalu.endrrta.server.RunState;
-import chihalu.endrrta.server.SplitRecord;
 import chihalu.endrrta.server.SplitType;
 
 public final class EndrRTAHud {
@@ -97,13 +94,16 @@ public final class EndrRTAHud {
 		drawHeader(graphics, font, content, x, y);
 		drawTimers(graphics, font, content, x, y + 26);
 		drawRows(graphics, font, rows, x, y + 56);
+
+        
 	}
+
 
 	private static boolean shouldRender(Minecraft minecraft, EndrRTAConfig config, @Nullable LocalPlayer player, @Nullable ClientLevel level) {
 		if (!config.showHud || player == null || level == null || minecraft.options.hideGui) {
 			return false;
 		}
-		return !minecraft.getDebugOverlay().showDebugScreen() && !minecraft.getDebugOverlay().showProfilerChart();
+		return !debugTextVisible(minecraft) && !minecraft.getDebugOverlay().showProfilerChart();
 	}
 
 	private static void updatePanelColors(int opacityPercent) {
@@ -121,7 +121,7 @@ public final class EndrRTAHud {
 	}
 
 	private static void drawHeader(GuiGraphicsExtractor graphics, Font font, HudContent content, int x, int y) {
-		graphics.text(font, "EndraRTA", x + 12, y + 7, ACCENT, true);
+		graphics.text(font, "EnderRTA", x + 12, y + 7, ACCENT, true);
 		graphics.text(font, content.mode(), x + PANEL_WIDTH - 12 - font.width(content.mode()), y + 7, content.modeColor(), true);
 		graphics.fill(x + 12, y + 21, x + PANEL_WIDTH - 12, y + 22, DIVIDER);
 	}
@@ -185,11 +185,6 @@ public final class EndrRTAHud {
 		List<@NonNull HudMetric> metrics = new ArrayList<>();
 		List<@NonNull HudMetric> alerts = new ArrayList<>();
 
-		SplitRecord latest = run == null ? null : run.latestSplit();
-		metrics.add(latest == null
-				? new HudMetric("最新", "なし", MUTED)
-				: new HudMetric("最新", latest.type().label() + " " + formatMillis(latest.rtaMillis()), SUCCESS));
-
 		BlockPos pos = Objects.requireNonNull(player.blockPosition(), "player block position");
 		if (config.showCoordinateConversion) {
 			metrics.add(convertedCoordinateMetric(level.dimension(), pos));
@@ -204,24 +199,34 @@ public final class EndrRTAHud {
 			metrics.add(new HudMetric("クリスタル", String.valueOf(countEndCrystals(level)), ACCENT));
 		}
 		if (config.showBastionType && level.dimension() == Level.NETHER) {
-			metrics.add(new HudMetric("ピグリン要塞", run == null ? "未検出" : run.bastionType(), WARNING));
+			if (run != null && run.bastionFound()) {
+				metrics.add(new HudMetric("ピグリン要塞", run.bastionType(), WARNING));
+			}
 		}
 		if (config.allowsPracticeAssist() && config.showRadar) {
 			if (level.dimension() == Level.OVERWORLD) {
-				addRadarMetric(metrics, "エンド要塞", run == null ? null : run.stronghold());
+				RadarTarget stronghold = run == null ? null : run.stronghold();
+				boolean showStronghold = false;
+				if (stronghold != null && run != null) {
+					showStronghold = stronghold.distance() <= config.structureFoundDistance || run.hasRecordedSplit(SplitType.STRONGHOLD_FOUND);
+				}
+				addRadarMetric(metrics, "エンド要塞", pos, showStronghold ? stronghold : null);
 			} else if (level.dimension() == Level.NETHER) {
-				addRadarMetric(metrics, "ネザー要塞", run == null ? null : run.fortress());
+				RadarTarget fortress = run == null ? null : run.fortress();
+				boolean showFortress = false;
+				if (fortress != null && run != null) {
+					showFortress = fortress.distance() <= config.structureFoundDistance || run.hasRecordedSplit(chihalu.endrrta.server.SplitType.NETHER_FORTRESS_FOUND);
+				}
+				addRadarMetric(metrics, "ネザー要塞", pos, showFortress ? fortress : null);
 			}
 		}
-		if (config.allowsPracticeAssist() && config.showBedBlastAssist && lookingAtBed(minecraft, level)) {
-			alerts.add(new HudMetric("ベッド", "危険 r5 / 安全 r7+", WARNING));
-		}
-		if (config.isCompetitionMode()) {
-			alerts.add(new HudMetric("競技", "練習補助 OFF", DANGER));
-		}
+		// 競技モードの警告表示は不要のため削除
 		if (PieChartAssistHandler.shouldShowHint(minecraft)) {
 			alerts.add(new HudMetric("円グラフ", PieChartAssistHandler.selectedLabel(minecraft), ACCENT));
 			alerts.add(new HudMetric("操作", "ホイール:選択 左:決定 右:戻る", MUTED));
+		}
+		if (chunkBordersVisible(minecraft)) {
+			alerts.add(chunkLocalCoordinateMetric(pos));
 		}
 
 		String mode = config.practiceMode ? "練習モード" : "競技モード";
@@ -247,6 +252,20 @@ public final class EndrRTAHud {
 			return new HudMetric("ネザー座標", Math.floorDiv(pos.getX(), 8) + ", " + Math.floorDiv(pos.getZ(), 8), TEXT);
 		}
 		return new HudMetric("座標", pos.getX() + ", " + pos.getY() + ", " + pos.getZ(), TEXT);
+	}
+
+	private static HudMetric chunkLocalCoordinateMetric(@NonNull BlockPos pos) {
+		return new HudMetric("チャンク内", Math.floorMod(pos.getX(), 16) + ", " + Math.floorMod(pos.getZ(), 16), INFO);
+	}
+
+	private static boolean chunkBordersVisible(Minecraft minecraft) {
+		return minecraft.debugEntries.isCurrentlyEnabled(DebugScreenEntries.CHUNK_BORDERS);
+	}
+
+	private static boolean debugTextVisible(Minecraft minecraft) {
+		return minecraft.debugEntries.isCurrentlyEnabled(DebugScreenEntries.GAME_VERSION)
+				|| minecraft.debugEntries.isCurrentlyEnabled(DebugScreenEntries.FPS)
+				|| minecraft.debugEntries.isCurrentlyEnabled(DebugScreenEntries.PLAYER_POSITION);
 	}
 
 	private static String biomeName(ClientLevel level, @NonNull BlockPos pos) {
@@ -369,25 +388,29 @@ public final class EndrRTAHud {
 		return count;
 	}
 
-	private static void addRadarMetric(List<@NonNull HudMetric> metrics, String label, @Nullable RadarTarget target) {
+	private static void addRadarMetric(List<@NonNull HudMetric> metrics, String label, @NonNull BlockPos playerPos, @Nullable RadarTarget target) {
 		if (target == null) {
 			metrics.add(new HudMetric(label, "????", MUTED));
 			return;
 		}
-		metrics.add(new HudMetric(label, "X%d Z%d %dm".formatted(
-				target.pos().getX(),
-				target.pos().getZ(),
-				(int) Math.round(target.distance())
-		), SUCCESS));
-	}
-
-	private static boolean lookingAtBed(Minecraft minecraft, ClientLevel level) {
-		HitResult hitResult = minecraft.hitResult;
-		if (!(hitResult instanceof BlockHitResult blockHit) || hitResult.getType() != HitResult.Type.BLOCK) {
-			return false;
+		int tx = target.pos().getX();
+		int tz = target.pos().getZ();
+		// 要塞（ネザー要塞 / エンド要塞）は座標表示（X Z 距離）にして文字色を白にする。
+		if ("ネザー要塞".equals(label) || "エンド要塞".equals(label)) {
+		    double euclid = Math.sqrt(playerPos.distSqr(target.pos()));
+			    metrics.add(new HudMetric(label, "%d %d %dm".formatted(
+				    tx,
+				    tz,
+				    (int) Math.round(euclid)
+			    ), TEXT));
+		    return;
 		}
-		BlockPos blockPos = Objects.requireNonNull(blockHit.getBlockPos(), "hit block position");
-		return level.getBlockState(blockPos).getBlock() instanceof BedBlock;
+		int dx = tx - playerPos.getX();
+		int dz = tz - playerPos.getZ();
+		metrics.add(new HudMetric(label, "(%+d,%+d)".formatted(
+			dx,
+			dz
+		), SUCCESS));
 	}
 
 	private static String formatTicks(long ticks) {

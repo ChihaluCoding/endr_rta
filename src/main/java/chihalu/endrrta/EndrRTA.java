@@ -26,10 +26,12 @@ public class EndrRTA implements ModInitializer {
 		EndrRTAConfigManager.load();
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> EndrRTAServerState.prepareInitialSpawn(handler.getPlayer()));
 		ServerTickEvents.END_SERVER_TICK.register(EndrRTAServerState::tickServer);
+		ServerLifecycleEvents.SERVER_STARTED.register(EndrRTAServerState::load);
+		ServerLifecycleEvents.SERVER_STOPPING.register(EndrRTAServerState::save);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EndrRTAServerState.clear());
 		PlayerBlockBreakEvents.AFTER.register(HayBaleClusterBreaker::breakNearbyHayBales);
 		LootTableEvents.MODIFY_DROPS.register(OreDropTransformer::replaceRawOreDrops);
 		LootTableEvents.MODIFY_DROPS.register(EntityDropTransformer::ensurePracticeDrops);
-		LOGGER.info("EndraRTA を初期化しました。");
+		LOGGER.info("EnderRTA を初期化しました。");
 	}
 }

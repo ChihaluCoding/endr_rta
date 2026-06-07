@@ -14,7 +14,6 @@ public class EndrRTAConfig {
 	public boolean showBastionType = true;
 	public int hudBackgroundOpacity = 90;
 	public boolean showRadar = true;
-	public boolean showBedBlastAssist = true;
 	public boolean breakNearbyHayBales = true;
 	public boolean preventIgnoredItemPickup = false;
 	public String[] ignoredPickupItems = {
@@ -27,6 +26,7 @@ public class EndrRTAConfig {
 	public boolean guaranteedEnderPearls = true;
 	public boolean preventEndermanBlockCarry = true;
 	public boolean confirmQuickReset = true;
+	public boolean resetKeepPreviousWorld = true;
 	public boolean enableMultiInstance = false;
 	public boolean resetGenerateStructures = true;
 	public boolean resetBonusChest = false;

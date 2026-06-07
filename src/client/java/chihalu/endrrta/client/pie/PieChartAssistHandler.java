@@ -199,6 +199,6 @@ public final class PieChartAssistHandler {
 	}
 
 	private static void showMessage(Minecraft minecraft, String message) {
-		minecraft.gui.setOverlayMessage(Component.literal("[EndraRTA] " + message), false);
+		minecraft.gui.setOverlayMessage(Component.literal("[EnderRTA] " + message), false);
 	}
 }

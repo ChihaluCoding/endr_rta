@@ -1,8 +1,15 @@
 {
 	"key.endrrta.quick_reset": "クイックリセット",
-	"key.endrrta.config": "EndraRTA 設定を開く",
+	"key.endrrta.config": "EnderRTA 設定を開く",
 	"key.endrrta.pie_chart_toggle": "円グラフを開閉",
 	"key.endrrta.pie_chart_back": "円グラフを1つ戻る",
 	"key.endrrta.pie_chart_root": "円グラフをrootへ戻す",
+	"key.endrrta.chunk_borders": "チャンク境界線を切り替え",
+	"key.endrrta.chunk_borders_toggle": "チャンク境界線を切り替え",
+	"key.endrrta.chunk_borders_quick": "チャンク境界線を切り替え",
+	"key.endrrta.hitboxes_toggle": "当たり判定を切り替え",
+	"key.endrrta.render_distance": "描画距離を切り替え",
+	"key.endrrta.render_distance_increase": "描画距離を増やす",
+	"key.endrrta.render_distance_decrease": "描画距離を減らす",
 	"button.endrrta.seed_reset": "シードリセット"
 }

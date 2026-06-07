@@ -3,8 +3,12 @@
 	"package": "chihalu.endrrta.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"AbstractContainerScreenMixin",
 		"DebugScreenOverlayMixin",
+		"KeyboardHandlerAccessor",
+		"MinecraftServerAccessor",
 		"MouseHandlerMixin",
+		"PauseScreenAccessor",
 		"PauseScreenMixin",
 		"ProfilerPieChartAccessor"
 	],

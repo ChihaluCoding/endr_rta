@@ -14,4 +14,4 @@ plugins {
 }
 
 // Should match your modid
-rootProject.name = 'endrarta'
+rootProject.name = 'enderrta'

@@ -1,4 +1,4 @@
-# EndraRTA v1 仕様
+# EnderRTA v1 仕様
 
 ## タスク情報
 - 対象: Fabric Minecraft 26.1.2 mod
@@ -749,21 +749,21 @@
 - 変更区分: PATCH
 
 ### 範囲
-- modの表示名を `EndraRTA` に変更する。
-- HUD、設定画面、キー設定表示、通知、ログ、クイックリセット用ワールド名の表示を `EndraRTA` に変更する。
-- 生成Jar名を `endrarta-<version>.jar` にする。
-- mods自動配置時に旧 `endrrta-*.jar` と新 `endrarta-*.jar` の両方を削除してから最新版をコピーする。
+- modの表示名を `EnderRTA` に変更する。
+- HUD、設定画面、キー設定表示、通知、ログ、クイックリセット用ワールド名の表示を `EnderRTA` に変更する。
+- 生成Jar名を `EnderRTA-<version>.jar` にする。
+- mods自動配置時に旧 `endrrta-*.jar` と新 `EnderRTA-*.jar` の両方を削除してから最新版をコピーする。
 - 修正に合わせて `mod_version` を PATCH 更新する。
 
 ### 制約
 - 既存設定やリソース参照を壊さないため、mod ID `endrrta`、Javaパッケージ、設定ファイル名は維持する。
-- EndraRTA以外のmod Jarは削除しない。
+- EnderRTA以外のmod Jarは削除しない。
 - 外部の有料 API、サーバー、シークレットは使わない。
 
 ### 受け入れ条件
-- `fabric.mod.json` の `name` が `EndraRTA` になっている。
-- ゲーム内に表示される主要な旧名表記が `EndraRTA` へ置き換わっている。
-- `gradlew.bat clean build --warning-mode all` 後に `endrarta-<version>.jar` がmodsへ配置される。
+- `fabric.mod.json` の `name` が `EnderRTA` になっている。
+- ゲーム内に表示される主要な旧名表記が `EnderRTA` へ置き換わっている。
+- `gradlew.bat clean build --warning-mode all` 後に `EnderRTA-<version>.jar` がmodsへ配置される。
 - mods内に旧 `endrrta-*.jar` が残らない。
 
 ## 2026-06-07 追加練習補助とHUD修正タスク
@@ -778,7 +778,7 @@
 - 設定ON時、`config/endrrta.json` の `ignoredPickupItems` に列挙したアイテムを拾わないようにする。
 - ピグリン要塞タイプをHUDに表示し、設定画面から表示/非表示を切り替えられるようにする。
 - 村スポーン補正をサーバーtick待ちだけでなく、プレイヤー参加直後にも実行する。
-- F3デバッグ画面またはF3プロファイラ円グラフ表示中はEndraRTA HUDを描画しない。
+- F3デバッグ画面またはF3プロファイラ円グラフ表示中はEnderRTA HUDを描画しない。
 - 修正に合わせて `mod_version` を PATCH 更新する。
 
 ### 制約
@@ -792,13 +792,13 @@
 - 設定画面で `指定アイテム拾得拒否` を切り替えられる。
 - 設定画面で `ピグリン要塞タイプ` を切り替えられる。
 - ネザーでHUDにピグリン要塞タイプが表示される。
-- F3+Pで円グラフを出してもEndraRTA HUDが表示されない。
+- F3+Pで円グラフを出してもEnderRTA HUDが表示されない。
 - `gradlew.bat clean build --warning-mode all` が成功する。
 
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.26` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.26.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.26.jar` が配置されていることを確認。
 - ピグリン要塞タイプ用の構造タグJSONがJSONとして読み込めることを確認。
 
 ## 2026-06-07 ベッドスタック追加タスク
@@ -826,7 +826,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.27` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.27.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.27.jar` が配置されていることを確認。
 
 ## 2026-06-07 MouseHandlerMixin IDE診断修正タスク
 
@@ -852,7 +852,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.28` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.28.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.28.jar` が配置されていることを確認。
 
 ## 2026-06-07 PieChartAssistHandlerパッケージ移動タスク
 
@@ -879,7 +879,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.29` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.29.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.29.jar` が配置されていることを確認。
 - `src` 配下に旧 `client.pie` パッケージ参照が残っていないことを確認。
 
 ## 2026-06-07 ItemStackMixin bootstrapクラッシュ修正タスク
@@ -906,7 +906,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.30` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.30.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.30.jar` が配置されていることを確認。
 - `ItemStackMixin` の注入先が `method_7914` になっていることを確認。
 
 ## 2026-06-07 ItemStackMixin削除とFabric API化タスク
@@ -935,7 +935,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.31` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.31.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.31.jar` が配置されていることを確認。
 - 生成Jarに `ItemStackMixin.class` が含まれず、`PracticeStackComponents.class` が含まれることを確認。
 
 ## 2026-06-07 ボート/ベッドスタック削除タスク
@@ -965,7 +965,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.32` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.32.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.32.jar` が配置されていることを確認。
 - `src` 配下に `stackBoats` / `stackBeds` / `PracticeStackComponents` / `ボートスタック` / `ベッドスタック` の参照が残っていないことを確認。
 - 生成Jarに `PracticeStackComponents.class` と `ItemStackMixin.class` が含まれないことを確認。
 
@@ -998,7 +998,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.35` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.35.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.35.jar` が配置されていることを確認。
 - 生成Jarに `MouseHandlerMixin.class` と `client/pie/PieChartAssistHandler.class` が含まれることを確認。
 - 生成Jarに古い種類別ピグリン要塞タグと `PracticeStackComponents.class` / `ItemStackMixin.class` が含まれないことを確認。
 - `runClient` で初期化、リソース読み込み、ワールド参加、村スポーン補正まで到達することを確認。
@@ -1035,7 +1035,7 @@
 ### 検証メモ
 - `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
 - `mod_version=2.0.36` が反映されていることを確認。
-- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.36.jar` が配置されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `EnderRTA-2.0.36.jar` が配置されていることを確認。
 - 生成Jarに `DebugScreenOverlayMixin.class` と `bastion_remnant.json` が含まれることを確認。
 - 旧種類別ピグリン要塞タグ、旧MouseHandler注入名、ボート/ベッドスタック関連クラスが残っていないことを確認。
 - `runClient` で初期化、リソース読み込み、ワールド参加、村スポーン補正まで到達することを確認。

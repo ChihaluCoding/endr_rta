@@ -42,7 +42,7 @@ public final class EndrRTAConfigManager {
 			config = loaded == null ? new EndrRTAConfig() : loaded;
 			config.normalize();
 		} catch (IOException exception) {
-			EndrRTA.LOGGER.warn("EndraRTA 設定を読み込めませんでした。既定値を使用します。", exception);
+			EndrRTA.LOGGER.warn("EnderRTA 設定を読み込めませんでした。既定値を使用します。", exception);
 			config = new EndrRTAConfig();
 		}
 		loaded = true;
@@ -56,7 +56,7 @@ public final class EndrRTAConfigManager {
 				GSON.toJson(config, writer);
 			}
 		} catch (IOException exception) {
-			EndrRTA.LOGGER.warn("EndraRTA 設定を書き込めませんでした。", exception);
+			EndrRTA.LOGGER.warn("EnderRTA 設定を書き込めませんでした。", exception);
 		}
 	}
 }

@@ -79,7 +79,7 @@ jar {
 
 tasks.register("installClientMod") {
 	group = "build"
-	description = "Copies the built EndraRTA jar to the local Minecraft mods directory and removes older EndraRTA jars."
+	description = "Copies the built EnderRTA jar to the local Minecraft mods directory and removes older EnderRTA jars."
 	dependsOn tasks.named("jar")
 
 	doLast {
@@ -88,9 +88,14 @@ tasks.register("installClientMod") {
 		def jarFile = jarTask.archiveFile.get().asFile
 		modsDir.mkdirs()
 
-		delete fileTree(modsDir) {
+		fileTree(modsDir) {
 			include "endrrta-*.jar"
 			include "endrarta-*.jar"
+			include "enderrta-*.jar"
+		}.each { oldJar ->
+			if (!oldJar.delete()) {
+				logger.warn("Could not delete old EnderRTA jar because it may be in use: ${oldJar}")
+			}
 		}
 
 		copy {
