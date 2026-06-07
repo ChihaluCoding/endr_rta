@@ -4,21 +4,30 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.StructureTags;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.entity.Relative;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -31,6 +40,7 @@ public final class EndrRTAServerState {
 	private static final Map<UUID, RunState> RUNS = new HashMap<>();
 	private static final Set<UUID> VILLAGE_SPAWNED = new HashSet<>();
 	private static final int MIN_SAFE_SURFACE_OFFSET = 5;
+	private static final int BASTION_START_SCAN_RADIUS_CHUNKS = 12;
 	private static final String BASTION_UNKNOWN = "未検出";
 	private static int radarTick;
 
@@ -151,14 +161,15 @@ public final class EndrRTAServerState {
 
 		BlockPos playerPos = Objects.requireNonNull(player.blockPosition(), "player block position");
 		if (player.level().dimension() == Level.OVERWORLD) {
+			run.setFortress(null);
+			run.setBastionType(BASTION_UNKNOWN);
 			RadarTarget stronghold = findTarget(player.level(), "エンド要塞", StructureTags.EYE_OF_ENDER_LOCATED, playerPos, config.radarSearchRadius);
 			run.setStronghold(stronghold);
 			if (stronghold != null && stronghold.distance() <= config.structureFoundDistance) {
 				run.recordSplit(SplitType.STRONGHOLD_FOUND);
 			}
-		}
-
-		if (player.level().dimension() == Level.NETHER) {
+		} else if (player.level().dimension() == Level.NETHER) {
+			run.setStronghold(null);
 			RadarTarget fortress = findTarget(player.level(), "ネザー要塞", EndrRTATags.NETHER_FORTRESS, playerPos, config.radarSearchRadius);
 			run.setFortress(fortress);
 			run.setBastionType(config.showBastionType ? findBastionType(player.level(), playerPos, config.radarSearchRadius) : BASTION_UNKNOWN);
@@ -166,6 +177,8 @@ public final class EndrRTAServerState {
 				run.recordSplit(SplitType.NETHER_FORTRESS_FOUND);
 			}
 		} else {
+			run.setStronghold(null);
+			run.setFortress(null);
 			run.setBastionType(BASTION_UNKNOWN);
 		}
 	}
@@ -182,16 +195,92 @@ public final class EndrRTAServerState {
 
 	private static String findBastionType(ServerLevel level, @NonNull BlockPos origin, int radius) {
 		RadarTarget bastion = findTarget(level, "ピグリン要塞", EndrRTATags.BASTION_REMNANT, origin, radius);
-		return bastion == null ? BASTION_UNKNOWN : bastion.label();
+		if (bastion == null) {
+			return BASTION_UNKNOWN;
+		}
+		return identifyBastionType(level, bastion.pos()).orElse("不明");
 	}
 
-	private static @Nullable RadarTarget nearest(@Nullable RadarTarget... targets) {
-		@Nullable RadarTarget nearest = null;
-		for (RadarTarget target : targets) {
-			if (target != null && (nearest == null || target.distance() < nearest.distance())) {
-				nearest = target;
+	private static Optional<String> identifyBastionType(ServerLevel level, BlockPos bastionPos) {
+		Set<Structure> bastionStructures = new HashSet<>();
+		for (Holder<Structure> holder : level.registryAccess().lookupOrThrow(Registries.STRUCTURE).getTagOrEmpty(EndrRTATags.BASTION_REMNANT)) {
+			bastionStructures.add(holder.value());
+		}
+		if (bastionStructures.isEmpty()) {
+			return Optional.empty();
+		}
+
+		ChunkPos center = new ChunkPos(bastionPos.getX() >> 4, bastionPos.getZ() >> 4);
+		for (int radius = 0; radius <= BASTION_START_SCAN_RADIUS_CHUNKS; radius++) {
+			Optional<String> found = scanBastionTypeRing(level, center, radius, bastionStructures);
+			if (found.isPresent()) {
+				return found;
 			}
 		}
-		return nearest;
+		return Optional.empty();
+	}
+
+	private static Optional<String> scanBastionTypeRing(ServerLevel level, ChunkPos center, int radius, Set<Structure> bastionStructures) {
+		for (int dx = -radius; dx <= radius; dx++) {
+			for (int dz = -radius; dz <= radius; dz++) {
+				if (radius > 0 && Math.abs(dx) != radius && Math.abs(dz) != radius) {
+					continue;
+				}
+				ChunkAccess chunk = level.getChunk(center.x() + dx, center.z() + dz, ChunkStatus.STRUCTURE_STARTS, true);
+				for (Structure structure : bastionStructures) {
+					StructureStart start = chunk.getStartForStructure(structure);
+					if (start != null && start.isValid()) {
+						Optional<String> type = bastionTypeFromStart(start);
+						if (type.isPresent()) {
+							return type;
+						}
+					}
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	private static Optional<String> bastionTypeFromStart(StructureStart start) {
+		boolean units = false;
+		boolean bridge = false;
+		boolean hoglinStable = false;
+		boolean treasure = false;
+		for (StructurePiece piece : start.getPieces()) {
+			String descriptor = bastionPieceDescriptor(piece);
+			if (descriptor.contains("bastion/treasure/")) {
+				treasure = true;
+			} else if (descriptor.contains("bastion/hoglin_stable/")) {
+				hoglinStable = true;
+			} else if (descriptor.contains("bastion/bridge/")) {
+				bridge = true;
+			} else if (descriptor.contains("bastion/units/")) {
+				units = true;
+			}
+		}
+		if (treasure) {
+			return Optional.of("宝物部屋");
+		}
+		if (hoglinStable) {
+			return Optional.of("ホグリン小屋");
+		}
+		if (bridge) {
+			return Optional.of("橋");
+		}
+		if (units) {
+			return Optional.of("住居");
+		}
+		return Optional.empty();
+	}
+
+	private static String bastionPieceDescriptor(StructurePiece piece) {
+		if (piece instanceof PoolElementStructurePiece poolPiece) {
+			StructurePoolElement element = poolPiece.getElement();
+			if (element instanceof SinglePoolElement singleElement) {
+				return singleElement.getTemplateLocation().toString();
+			}
+			return element.toString();
+		}
+		return piece.toString();
 	}
 }

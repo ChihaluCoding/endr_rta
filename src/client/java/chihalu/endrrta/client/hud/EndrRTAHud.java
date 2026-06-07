@@ -207,20 +207,11 @@ public final class EndrRTAHud {
 			metrics.add(new HudMetric("ピグリン要塞", run == null ? "未検出" : run.bastionType(), WARNING));
 		}
 		if (config.allowsPracticeAssist() && config.showRadar) {
-			addRadarMetric(
-					metrics,
-					"エンド要塞",
-					run == null ? null : run.stronghold(),
-					pos,
-					run != null && run.hasRecordedSplit(SplitType.STRONGHOLD_FOUND)
-			);
-			addRadarMetric(
-					metrics,
-					"ネザー要塞",
-					run == null ? null : run.fortress(),
-					pos,
-					run != null && run.hasRecordedSplit(SplitType.NETHER_FORTRESS_FOUND)
-			);
+			if (level.dimension() == Level.OVERWORLD) {
+				addRadarMetric(metrics, "エンド要塞", run == null ? null : run.stronghold());
+			} else if (level.dimension() == Level.NETHER) {
+				addRadarMetric(metrics, "ネザー要塞", run == null ? null : run.fortress());
+			}
 		}
 		if (config.allowsPracticeAssist() && config.showBedBlastAssist && lookingAtBed(minecraft, level)) {
 			alerts.add(new HudMetric("ベッド", "危険 r5 / 安全 r7+", WARNING));
@@ -378,25 +369,16 @@ public final class EndrRTAHud {
 		return count;
 	}
 
-	private static void addRadarMetric(List<@NonNull HudMetric> metrics, String label, @Nullable RadarTarget target,
-			@NonNull BlockPos playerPos, boolean discovered) {
-		if (target == null || !discovered) {
+	private static void addRadarMetric(List<@NonNull HudMetric> metrics, String label, @Nullable RadarTarget target) {
+		if (target == null) {
 			metrics.add(new HudMetric(label, "????", MUTED));
 			return;
 		}
-		int dx = target.pos().getX() - playerPos.getX();
-		int dz = target.pos().getZ() - playerPos.getZ();
-		int distance = (int) Math.round(Math.sqrt((double) dx * dx + (double) dz * dz));
-		metrics.add(new HudMetric(label, direction(dx, dz) + " " + distance + "m", SUCCESS));
-	}
-
-	private static String direction(int dx, int dz) {
-		double angle = Math.toDegrees(Math.atan2(-dx, dz));
-		if (angle < 0.0D) {
-			angle += 360.0D;
-		}
-		String[] names = {"北", "北東", "東", "南東", "南", "南西", "西", "北西"};
-		return names[(int) Math.round(angle / 45.0D) % names.length];
+		metrics.add(new HudMetric(label, "X%d Z%d %dm".formatted(
+				target.pos().getX(),
+				target.pos().getZ(),
+				(int) Math.round(target.distance())
+		), SUCCESS));
 	}
 
 	private static boolean lookingAtBed(Minecraft minecraft, ClientLevel level) {
