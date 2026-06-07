@@ -12,7 +12,12 @@ public final class EndrRTATags {
 			Registries.STRUCTURE,
 			Identifier.parse(EndrRTA.MOD_ID + ":nether_fortress")
 	);
+	public static final TagKey<Structure> BASTION_REMNANT = structureTag("bastion_remnant");
 
 	private EndrRTATags() {
+	}
+
+	private static TagKey<Structure> structureTag(String path) {
+		return TagKey.create(Registries.STRUCTURE, Identifier.parse(EndrRTA.MOD_ID + ":" + path));
 	}
 }

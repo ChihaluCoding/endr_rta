@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "endrrta",
 	"version": "${version}",
-	"name": "EndrRTA",
+	"name": "EndraRTA",
 	"description": "エンダードラゴンRTAの練習を支援するタイマー、HUD、ルート補助、リセット機能を追加します。",
 	"authors": [
 		"chihalu"

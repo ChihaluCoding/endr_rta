@@ -14,7 +14,7 @@ public final class QuickResetHandler {
 	}
 
 	public static void requestQuickReset(Minecraft minecraft) {
-		requestReset(minecraft, null, Component.literal("EndrRTA クイックリセット"));
+		requestReset(minecraft, null, Component.literal("EndraRTA クイックリセット"));
 	}
 
 	public static void requestSeedReset(Minecraft minecraft, @Nullable Screen cancelScreen) {

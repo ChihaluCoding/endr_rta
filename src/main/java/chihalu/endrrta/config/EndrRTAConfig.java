@@ -11,10 +11,17 @@ public class EndrRTAConfig {
 	public boolean showBiome = true;
 	public boolean showLightLevel = true;
 	public boolean showCrystalCount = true;
+	public boolean showBastionType = true;
 	public int hudBackgroundOpacity = 90;
 	public boolean showRadar = true;
 	public boolean showBedBlastAssist = true;
 	public boolean breakNearbyHayBales = true;
+	public boolean preventIgnoredItemPickup = false;
+	public String[] ignoredPickupItems = {
+			"minecraft:netherrack",
+			"minecraft:basalt",
+			"minecraft:blackstone"
+	};
 	public boolean enablePieChartAssist = true;
 	public boolean guaranteedBlazeRods = true;
 	public boolean guaranteedEnderPearls = true;
@@ -39,5 +46,8 @@ public class EndrRTAConfig {
 
 	public void normalize() {
 		hudBackgroundOpacity = Math.clamp(hudBackgroundOpacity, 0, 100);
+		if (ignoredPickupItems == null) {
+			ignoredPickupItems = new String[0];
+		}
 	}
 }

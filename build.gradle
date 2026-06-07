@@ -77,6 +77,35 @@ jar {
 	}
 }
 
+tasks.register("installClientMod") {
+	group = "build"
+	description = "Copies the built EndraRTA jar to the local Minecraft mods directory and removes older EndraRTA jars."
+	dependsOn tasks.named("jar")
+
+	doLast {
+		def modsDir = file("C:/Users/sakip/AppData/Roaming/.minecraft/mods")
+		def jarTask = tasks.named("jar").get()
+		def jarFile = jarTask.archiveFile.get().asFile
+		modsDir.mkdirs()
+
+		delete fileTree(modsDir) {
+			include "endrrta-*.jar"
+			include "endrarta-*.jar"
+		}
+
+		copy {
+			from jarFile
+			into modsDir
+		}
+
+		logger.lifecycle("Installed ${jarFile.name} to ${modsDir}")
+	}
+}
+
+tasks.named("build") {
+	finalizedBy tasks.named("installClientMod")
+}
+
 // configure the maven publication
 publishing {
 	publications {

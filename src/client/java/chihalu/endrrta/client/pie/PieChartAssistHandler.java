@@ -11,9 +11,9 @@ import net.minecraft.util.profiling.ProfileResults;
 import net.minecraft.util.profiling.ResultField;
 import org.lwjgl.glfw.GLFW;
 
-import chihalu.endrrta.client.mixin.ProfilerPieChartAccessor;
 import chihalu.endrrta.config.EndrRTAConfig;
 import chihalu.endrrta.config.EndrRTAConfigManager;
+import chihalu.endrrta.client.mixin.ProfilerPieChartAccessor;
 
 public final class PieChartAssistHandler {
 	private static final int ROOT_RETURN_STEPS = 12;
@@ -199,6 +199,6 @@ public final class PieChartAssistHandler {
 	}
 
 	private static void showMessage(Minecraft minecraft, String message) {
-		minecraft.gui.setOverlayMessage(Component.literal("[EndrRTA] " + message), false);
+		minecraft.gui.setOverlayMessage(Component.literal("[EndraRTA] " + message), false);
 	}
 }

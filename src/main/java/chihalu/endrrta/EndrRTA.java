@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 
 import chihalu.endrrta.config.EndrRTAConfigManager;
@@ -23,11 +24,12 @@ public class EndrRTA implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		EndrRTAConfigManager.load();
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> EndrRTAServerState.prepareInitialSpawn(handler.getPlayer()));
 		ServerTickEvents.END_SERVER_TICK.register(EndrRTAServerState::tickServer);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EndrRTAServerState.clear());
 		PlayerBlockBreakEvents.AFTER.register(HayBaleClusterBreaker::breakNearbyHayBales);
 		LootTableEvents.MODIFY_DROPS.register(OreDropTransformer::replaceRawOreDrops);
 		LootTableEvents.MODIFY_DROPS.register(EntityDropTransformer::ensurePracticeDrops);
-		LOGGER.info("EndrRTA を初期化しました。");
+		LOGGER.info("EndraRTA を初期化しました。");
 	}
 }

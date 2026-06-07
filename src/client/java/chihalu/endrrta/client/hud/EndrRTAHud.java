@@ -60,6 +60,9 @@ public final class EndrRTAHud {
 	private static final int PANEL_PADDING = 10;
 	private static final long BIOME_NAME_SWITCH_MILLIS = 3_000L;
 	private static final Map<String, String> JAPANESE_BIOME_NAMES = createJapaneseBiomeNames();
+	private static int cachedPanelOpacity = -1;
+	private static int cachedPanelTop = PANEL_TOP_RGB;
+	private static int cachedPanelBottom = PANEL_BOTTOM_RGB;
 
 	private EndrRTAHud() {
 	}
@@ -81,16 +84,13 @@ public final class EndrRTAHud {
 		int height = Math.min(maxHeight, 66 + rows.size() * ROW_HEIGHT);
 		int x = 8;
 		int y = 8;
+		int opacity = Math.clamp(config.hudBackgroundOpacity, 0, 100);
 
-		graphics.fill(x + 3, y + 3, x + PANEL_WIDTH + 3, y + height + 3, SHADOW);
-		graphics.fillGradient(
-				x,
-				y,
-				x + PANEL_WIDTH,
-				y + height,
-				panelColor(PANEL_TOP_RGB, config.hudBackgroundOpacity),
-				panelColor(PANEL_BOTTOM_RGB, config.hudBackgroundOpacity)
-		);
+		if (opacity > 0) {
+			updatePanelColors(opacity);
+			graphics.fill(x + 3, y + 3, x + PANEL_WIDTH + 3, y + height + 3, SHADOW);
+			graphics.fillGradient(x, y, x + PANEL_WIDTH, y + height, cachedPanelTop, cachedPanelBottom);
+		}
 		graphics.outline(x, y, PANEL_WIDTH, height, BORDER);
 		graphics.fill(x, y, x + 4, y + height, content.railColor());
 
@@ -103,16 +103,25 @@ public final class EndrRTAHud {
 		if (!config.showHud || player == null || level == null || minecraft.options.hideGui) {
 			return false;
 		}
-		return !minecraft.getDebugOverlay().showDebugScreen();
+		return !minecraft.getDebugOverlay().showDebugScreen() && !minecraft.getDebugOverlay().showProfilerChart();
+	}
+
+	private static void updatePanelColors(int opacityPercent) {
+		if (cachedPanelOpacity == opacityPercent) {
+			return;
+		}
+		cachedPanelOpacity = opacityPercent;
+		cachedPanelTop = panelColor(PANEL_TOP_RGB, opacityPercent);
+		cachedPanelBottom = panelColor(PANEL_BOTTOM_RGB, opacityPercent);
 	}
 
 	private static int panelColor(int rgb, int opacityPercent) {
-		int alpha = Math.clamp(opacityPercent, 0, 100) * 255 / 100;
+		int alpha = opacityPercent * 255 / 100;
 		return (alpha << 24) | (rgb & 0x00FFFFFF);
 	}
 
 	private static void drawHeader(GuiGraphicsExtractor graphics, Font font, HudContent content, int x, int y) {
-		graphics.text(font, "EndrRTA", x + 12, y + 7, ACCENT, true);
+		graphics.text(font, "EndraRTA", x + 12, y + 7, ACCENT, true);
 		graphics.text(font, content.mode(), x + PANEL_WIDTH - 12 - font.width(content.mode()), y + 7, content.modeColor(), true);
 		graphics.fill(x + 12, y + 21, x + PANEL_WIDTH - 12, y + 22, DIVIDER);
 	}
@@ -193,6 +202,9 @@ public final class EndrRTAHud {
 		}
 		if (config.showCrystalCount && level.dimension() == Level.END) {
 			metrics.add(new HudMetric("クリスタル", String.valueOf(countEndCrystals(level)), ACCENT));
+		}
+		if (config.showBastionType && level.dimension() == Level.NETHER) {
+			metrics.add(new HudMetric("ピグリン要塞", run == null ? "未検出" : run.bastionType(), WARNING));
 		}
 		if (config.allowsPracticeAssist() && config.showRadar) {
 			addRadarMetric(

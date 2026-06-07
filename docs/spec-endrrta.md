@@ -1,4 +1,4 @@
-# EndrRTA v1 仕様
+# EndraRTA v1 仕様
 
 ## タスク情報
 - 対象: Fabric Minecraft 26.1.2 mod
@@ -707,3 +707,299 @@
 - `mod_version=2.0.23` が反映されていることを確認。
 - HUDカテゴリに `HUD背景透明度` スライダーを追加した。
 - `hudBackgroundOpacity` は読み込み時と保存時に0%から100%へ丸める実装にした。
+
+## 2026-06-07 ビルド後mods自動配置とHUD透明度軽量化タスク
+
+### タスク情報
+- 対象: Gradleビルド後のローカルMinecraft mods配置、HUD透明度描画
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- `build` 完了後に通常Jarを `C:\Users\sakip\AppData\Roaming\.minecraft\mods` へコピーする。
+- コピー前に同ディレクトリ内の `endrrta-*.jar` を削除し、旧バージョンが残らないようにする。
+- `sources.jar` はmodsへ配置しない。
+- HUD背景透明度の色計算をキャッシュし、透明度0%では背景と影の描画をスキップする。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+- 構造タグ修正後の最終配置版は `2.0.35` とする。
+
+### 制約
+- EndrRTA以外のmod Jarは削除しない。
+- ビルド成果物の生成場所は変更しない。
+- HUDの表示項目、位置、サイズは変更しない。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- `gradlew.bat build` または `gradlew.bat clean build --warning-mode all` 後に最新の `endrrta-<version>.jar` がmodsへ配置される。
+- mods内の古い `endrrta-*.jar` は削除される。
+- `endrrta-<version>-sources.jar` はmodsへ配置されない。
+- HUD透明度描画で毎フレームの色計算が発生し続けない。
+- 透明度0%ではHUDパネル背景と影を描画しない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 対象外
+- Minecraft本体や他modの負荷対策。
+- HUD全体の再設計。
+
+## 2026-06-07 mod表示名変更タスク
+
+### タスク情報
+- 対象: mod表示名、ゲーム内表示名、生成Jar名、mods自動配置
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- modの表示名を `EndraRTA` に変更する。
+- HUD、設定画面、キー設定表示、通知、ログ、クイックリセット用ワールド名の表示を `EndraRTA` に変更する。
+- 生成Jar名を `endrarta-<version>.jar` にする。
+- mods自動配置時に旧 `endrrta-*.jar` と新 `endrarta-*.jar` の両方を削除してから最新版をコピーする。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- 既存設定やリソース参照を壊さないため、mod ID `endrrta`、Javaパッケージ、設定ファイル名は維持する。
+- EndraRTA以外のmod Jarは削除しない。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- `fabric.mod.json` の `name` が `EndraRTA` になっている。
+- ゲーム内に表示される主要な旧名表記が `EndraRTA` へ置き換わっている。
+- `gradlew.bat clean build --warning-mode all` 後に `endrarta-<version>.jar` がmodsへ配置される。
+- mods内に旧 `endrrta-*.jar` が残らない。
+
+## 2026-06-07 追加練習補助とHUD修正タスク
+
+### タスク情報
+- 対象: ボートスタック、アイテム拾得拒否、ピグリン要塞タイプHUD、村スポーン補正、F3表示中HUD制御
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- 設定ON時、ボート/チェスト付きボート/竹の筏を最大64個までスタックできるようにする。
+- 設定ON時、`config/endrrta.json` の `ignoredPickupItems` に列挙したアイテムを拾わないようにする。
+- ピグリン要塞タイプをHUDに表示し、設定画面から表示/非表示を切り替えられるようにする。
+- 村スポーン補正をサーバーtick待ちだけでなく、プレイヤー参加直後にも実行する。
+- F3デバッグ画面またはF3プロファイラ円グラフ表示中はEndraRTA HUDを描画しない。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- mod ID、設定ファイル名、Javaパッケージ名は変更しない。
+- アイテム拾得拒否は練習モードかつ設定ONのときだけ有効にする。
+- ピグリン要塞タイプは近傍検索できた最寄り候補を表示する。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- 設定画面で `ボートスタック` を切り替えられる。
+- 設定画面で `指定アイテム拾得拒否` を切り替えられる。
+- 設定画面で `ピグリン要塞タイプ` を切り替えられる。
+- ネザーでHUDにピグリン要塞タイプが表示される。
+- F3+Pで円グラフを出してもEndraRTA HUDが表示されない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.26` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.26.jar` が配置されていることを確認。
+- ピグリン要塞タイプ用の構造タグJSONがJSONとして読み込めることを確認。
+
+## 2026-06-07 ベッドスタック追加タスク
+
+### タスク情報
+- 対象: 練習補助設定、ItemStack最大スタック数
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- 設定ON時、全色ベッドを最大64個までスタックできるようにする。
+- 設定画面の初期補助カテゴリに `ベッドスタック` を追加する。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- ベッドスタックは練習モードでのみ有効にする。
+- ボートスタックの既存挙動は維持する。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- 設定画面で `ベッドスタック` を切り替えられる。
+- 設定ONの練習モードでベッドの最大スタック数が64になる。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.27` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.27.jar` が配置されていることを確認。
+
+## 2026-06-07 MouseHandlerMixin IDE診断修正タスク
+
+### タスク情報
+- 対象: `MouseHandlerMixin`
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- `@Shadow minecraft` を削除し、`Minecraft.getInstance()` を使う形に変更する。
+- `@Inject` 対象をIDEが解決しやすいintermediary名へ変更する。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- 円グラフ補助のホイール選択、左クリック決定、右クリック戻りの挙動は変更しない。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- `MouseHandlerMixin` の `@Shadow field` 診断が出ない。
+- `MouseHandlerMixin` の `onScroll` / `onButton` ターゲット名診断が出ない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.28` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.28.jar` が配置されていることを確認。
+
+## 2026-06-07 PieChartAssistHandlerパッケージ移動タスク
+
+### タスク情報
+- 対象: `MouseHandlerMixin` と円グラフ補助ハンドラ
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- IDEが `chihalu.endrrta.client.pie` を解決できない診断を避けるため、`PieChartAssistHandler` を `client.mixin` パッケージへ移動する。
+- `EndrRTAClient` と `EndrRTAHud` のimportを移動先へ更新する。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- 円グラフ補助の挙動は変更しない。
+- Mixin JSONの登録対象は変更しない。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- `MouseHandlerMixin` から `PieChartAssistHandler` を参照できる。
+- 旧 `client.pie` パッケージ参照が残らない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.29` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.29.jar` が配置されていることを確認。
+- `src` 配下に旧 `client.pie` パッケージ参照が残っていないことを確認。
+
+## 2026-06-07 ItemStackMixin bootstrapクラッシュ修正タスク
+
+### タスク情報
+- 対象: `ItemStackMixin`、設定読み込み状態
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- 本番起動時に `ItemStackMixin` の `getMaxStackSize` 注入先が見つからずクラッシュする問題を修正する。
+- `@Inject` 対象を実行環境で解決できるintermediary名へ変更する。
+- Minecraft bootstrap中に設定やアイテム定数へ触れないよう、設定読み込み済みフラグを追加する。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- ボート/ベッドスタックの設定挙動は維持する。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- 起動ログに `ItemStackMixin` の `getMaxStackSize` ターゲット不一致が出ない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.30` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.30.jar` が配置されていることを確認。
+- `ItemStackMixin` の注入先が `method_7914` になっていることを確認。
+
+## 2026-06-07 ItemStackMixin削除とFabric API化タスク
+
+### タスク情報
+- 対象: ボート/ベッドスタック処理、起動bootstrapクラッシュ
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- 起動時に `ItemStackMixin` がターゲット名不一致でクラッシュする問題を根本回避する。
+- `ItemStackMixin` を削除し、Mixin設定からも外す。
+- ボート/ベッドの最大スタック数変更を `DefaultItemComponentEvents.MODIFY` に置き換える。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- ボート/ベッドスタックは起動時の設定値を標準コンポーネントへ反映する。
+- 設定変更後の反映にはMinecraft再起動が必要。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- 生成Jarに `ItemStackMixin.class` が含まれない。
+- `endrrta.mixins.json` に `ItemStackMixin` が含まれない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.31` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.31.jar` が配置されていることを確認。
+- 生成Jarに `ItemStackMixin.class` が含まれず、`PracticeStackComponents.class` が含まれることを確認。
+
+## 2026-06-07 ボート/ベッドスタック削除タスク
+
+### タスク情報
+- 対象: ボート/ベッドスタック設定と処理
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- ボート/ベッドの最大スタック数変更機能を削除する。
+- 設定項目 `stackBoats` / `stackBeds` と設定画面の `ボートスタック` / `ベッドスタック` を削除する。
+- `PracticeStackComponents` の登録とクラス本体を削除する。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- ほかの練習補助、HUD、拾得拒否、村スポーン、円グラフ補助の挙動は変更しない。
+- 既存の `config/endrrta.json` に古いキーが残っていても起動を妨げない。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- 設定画面に `ボートスタック` / `ベッドスタック` が表示されない。
+- `src` 配下に `stackBoats` / `stackBeds` / `PracticeStackComponents` の参照が残らない。
+- 生成Jarに `PracticeStackComponents.class` が含まれない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.32` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.32.jar` が配置されていることを確認。
+- `src` 配下に `stackBoats` / `stackBeds` / `PracticeStackComponents` / `ボートスタック` / `ベッドスタック` の参照が残っていないことを確認。
+- 生成Jarに `PracticeStackComponents.class` と `ItemStackMixin.class` が含まれないことを確認。
+
+## 2026-06-07 MouseHandlerMixin起動クラッシュ修正タスク
+
+### タスク情報
+- 対象: `MouseHandlerMixin`、起動時Mixin変換
+- 使用Skill: jp-coding-rules
+- 変更区分: PATCH
+
+### 範囲
+- `MouseHandlerMixin` が起動時に `method_1598` を解決できずクラッシュする問題を修正する。
+- `MouseHandler` の実メソッド名に合わせ、注入先を `onScroll` / `onButton` に変更する。
+- `PieChartAssistHandler` をMixin専用パッケージ外へ移動し、通常クラスの直接参照クラッシュを回避する。
+- 存在しない種類別ピグリン要塞構造IDを参照しないよう、タグを `minecraft:bastion_remnant` へ集約する。
+- 修正に合わせて `mod_version` を PATCH 更新する。
+
+### 制約
+- 円グラフ補助のホイール選択、クリック決定、右クリック戻りの挙動は変更しない。
+- ボート/ベッドスタック削除後の状態は維持する。
+- 外部の有料 API、サーバー、シークレットは使わない。
+
+### 受け入れ条件
+- 起動ログに `MouseHandlerMixin` の `method_1598` ターゲット不一致が出ない。
+- 起動ログに `PieChartAssistHandler is in a defined mixin package` が出ない。
+- 起動ログに `Unbound values in registry` が出ない。
+- `gradlew.bat clean build --warning-mode all` が成功する。
+- 最新JarがMinecraftのmodsフォルダへ配置される。
+
+### 検証メモ
+- `gradlew.bat clean build --warning-mode all`: 成功。警告なし。
+- `mod_version=2.0.35` が反映されていることを確認。
+- `C:\Users\sakip\AppData\Roaming\.minecraft\mods` に `endrarta-2.0.35.jar` が配置されていることを確認。
+- 生成Jarに `MouseHandlerMixin.class` と `client/pie/PieChartAssistHandler.class` が含まれることを確認。
+- 生成Jarに古い種類別ピグリン要塞タグと `PracticeStackComponents.class` / `ItemStackMixin.class` が含まれないことを確認。
+- `runClient` で初期化、リソース読み込み、ワールド参加、村スポーン補正まで到達することを確認。
+- `runClient` の最新ログで `MouseHandlerMixin` / `PieChartAssistHandler` / `Unbound values in registry` の起動クラッシュが出ていないことを確認。

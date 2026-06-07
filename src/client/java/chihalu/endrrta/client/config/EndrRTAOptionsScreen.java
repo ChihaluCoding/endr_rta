@@ -38,7 +38,7 @@ public class EndrRTAOptionsScreen extends Screen {
 	private SettingsCategory selectedCategory = SettingsCategory.BASIC;
 
 	public EndrRTAOptionsScreen(@Nullable Screen parent) {
-		super(Component.literal("EndrRTA 設定"));
+		super(Component.literal("EndraRTA 設定"));
 		this.parent = parent;
 	}
 
@@ -107,6 +107,7 @@ public class EndrRTAOptionsScreen extends Screen {
 		addToggle(x + 160, y, "ブレイズロッド確定", () -> config.guaranteedBlazeRods, value -> config.guaranteedBlazeRods = value);
 		y += ROW_SPACING;
 		addToggle(x, y, "エンダーパール確定", () -> config.guaranteedEnderPearls, value -> config.guaranteedEnderPearls = value);
+		addToggle(x + 160, y, "指定アイテム拾得拒否", () -> config.preventIgnoredItemPickup, value -> config.preventIgnoredItemPickup = value);
 	}
 
 	private void addEnderSettings(EndrRTAConfig config, int x, int y) {
@@ -132,6 +133,8 @@ public class EndrRTAOptionsScreen extends Screen {
 		y += ROW_SPACING;
 		addToggle(x, y, "明るさ", () -> config.showLightLevel, value -> config.showLightLevel = value);
 		addToggle(x + 160, y, "残りクリスタル数", () -> config.showCrystalCount, value -> config.showCrystalCount = value);
+		y += ROW_SPACING;
+		addToggle(x, y, "ピグリン要塞タイプ", () -> config.showBastionType, value -> config.showBastionType = value);
 		y += ROW_SPACING;
 		addRenderableWidget(new PercentSlider(
 				x,

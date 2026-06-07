@@ -18,6 +18,7 @@ public final class RunState {
 	private @Nullable ResourceKey<Level> lastDimension;
 	private @Nullable RadarTarget stronghold;
 	private @Nullable RadarTarget fortress;
+	private String bastionType = "未検出";
 	private final EnumSet<@NonNull SplitType> recordedSplits = EnumSet.noneOf(SplitType.class);
 	private final List<@NonNull SplitRecord> splits = new ArrayList<>();
 
@@ -96,6 +97,14 @@ public final class RunState {
 
 	public void setFortress(@Nullable RadarTarget fortress) {
 		this.fortress = fortress;
+	}
+
+	public String bastionType() {
+		return bastionType;
+	}
+
+	public void setBastionType(String bastionType) {
+		this.bastionType = bastionType;
 	}
 
 	public List<@NonNull SplitRecord> splits() {

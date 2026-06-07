@@ -24,7 +24,7 @@ public final class SeedResetWorldStarter {
 
 	public static void startNewWorld(Minecraft minecraft) {
 		EndrRTAConfig config = EndrRTAConfigManager.get();
-		String worldName = "EndrRTA-Reset-" + LocalDateTime.now().format(WORLD_NAME_FORMAT)
+		String worldName = "EndraRTA-Reset-" + LocalDateTime.now().format(WORLD_NAME_FORMAT)
 				+ "-" + UUID.randomUUID().toString().substring(0, 8);
 		LevelSettings levelSettings = new LevelSettings(
 				worldName,

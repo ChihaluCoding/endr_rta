@@ -31,6 +31,7 @@ public final class EndrRTAServerState {
 	private static final Map<UUID, RunState> RUNS = new HashMap<>();
 	private static final Set<UUID> VILLAGE_SPAWNED = new HashSet<>();
 	private static final int MIN_SAFE_SURFACE_OFFSET = 5;
+	private static final String BASTION_UNKNOWN = "未検出";
 	private static int radarTick;
 
 	private EndrRTAServerState() {
@@ -42,12 +43,16 @@ public final class EndrRTAServerState {
 
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			RunState run = RUNS.computeIfAbsent(player.getUUID(), ignored -> new RunState());
-			handleVillageSpawn(player, config);
+			prepareVillageSpawn(player, config);
 			handleTimer(player, run, config);
 			if (radarTick % 100 == 0) {
 				updateRadar(player, run, config);
 			}
 		}
+	}
+
+	public static void prepareInitialSpawn(ServerPlayer player) {
+		prepareVillageSpawn(player, EndrRTAConfigManager.get());
 	}
 
 	public static @Nullable RunState getRun(UUID playerId) {
@@ -69,7 +74,7 @@ public final class EndrRTAServerState {
 		}
 	}
 
-	private static void handleVillageSpawn(ServerPlayer player, EndrRTAConfig config) {
+	private static void prepareVillageSpawn(ServerPlayer player, EndrRTAConfig config) {
 		if (!config.allowsPracticeAssist() || !config.forceVillageSpawn || player.level().dimension() != Level.OVERWORLD) {
 			return;
 		}
@@ -85,13 +90,13 @@ public final class EndrRTAServerState {
 				false
 		);
 		if (village == null) {
-			player.sendSystemMessage(Component.literal("[EndrRTA] 指定範囲内に村が見つかりませんでした。"));
+			player.sendSystemMessage(Component.literal("[EndraRTA] 指定範囲内に村が見つかりませんでした。"));
 			return;
 		}
 
 		@Nullable BlockPos safePos = safeSurfacePos(player.level(), village);
 		if (safePos == null) {
-			player.sendSystemMessage(Component.literal("[EndrRTA] 村の安全な地表を取得できなかったため、初期移動を中止しました。"));
+			player.sendSystemMessage(Component.literal("[EndraRTA] 村の安全な地表を取得できなかったため、初期移動を中止しました。"));
 			return;
 		}
 
@@ -105,7 +110,7 @@ public final class EndrRTAServerState {
 				player.getXRot(),
 				false
 		);
-		player.sendSystemMessage(Component.literal("[EndrRTA] 最寄り村へスポーン補正しました。"));
+		player.sendSystemMessage(Component.literal("[EndraRTA] 最寄り村へスポーン補正しました。"));
 	}
 
 	private static @Nullable BlockPos safeSurfacePos(ServerLevel level, BlockPos target) {
@@ -140,6 +145,7 @@ public final class EndrRTAServerState {
 		if (!config.allowsPracticeAssist() || !config.showRadar) {
 			run.setStronghold(null);
 			run.setFortress(null);
+			run.setBastionType(BASTION_UNKNOWN);
 			return;
 		}
 
@@ -155,9 +161,12 @@ public final class EndrRTAServerState {
 		if (player.level().dimension() == Level.NETHER) {
 			RadarTarget fortress = findTarget(player.level(), "ネザー要塞", EndrRTATags.NETHER_FORTRESS, playerPos, config.radarSearchRadius);
 			run.setFortress(fortress);
+			run.setBastionType(config.showBastionType ? findBastionType(player.level(), playerPos, config.radarSearchRadius) : BASTION_UNKNOWN);
 			if (fortress != null && fortress.distance() <= config.structureFoundDistance) {
 				run.recordSplit(SplitType.NETHER_FORTRESS_FOUND);
 			}
+		} else {
+			run.setBastionType(BASTION_UNKNOWN);
 		}
 	}
 
@@ -169,5 +178,20 @@ public final class EndrRTAServerState {
 
 		double distance = Math.sqrt(origin.distSqr(found));
 		return new RadarTarget(label, found, distance);
+	}
+
+	private static String findBastionType(ServerLevel level, @NonNull BlockPos origin, int radius) {
+		RadarTarget bastion = findTarget(level, "ピグリン要塞", EndrRTATags.BASTION_REMNANT, origin, radius);
+		return bastion == null ? BASTION_UNKNOWN : bastion.label();
+	}
+
+	private static @Nullable RadarTarget nearest(@Nullable RadarTarget... targets) {
+		@Nullable RadarTarget nearest = null;
+		for (RadarTarget target : targets) {
+			if (target != null && (nearest == null || target.distance() < nearest.distance())) {
+				nearest = target;
+			}
+		}
+		return nearest;
 	}
 }
