@@ -16,7 +16,7 @@ public final class IgnoredPickupItems {
 
 	public static boolean shouldIgnore(ItemStack stack) {
 		EndrRTAConfig config = EndrRTAConfigManager.get();
-		if (!config.allowsPracticeAssist() || !config.preventIgnoredItemPickup || stack.isEmpty()) {
+		if (!config.allowsPreventIgnoredItemPickup() || stack.isEmpty()) {
 			return false;
 		}
 

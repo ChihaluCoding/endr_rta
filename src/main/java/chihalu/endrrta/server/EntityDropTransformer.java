@@ -21,18 +21,14 @@ public final class EntityDropTransformer {
 
 	public static void ensurePracticeDrops(Holder<LootTable> holder, LootContext context, List<ItemStack> drops) {
 		EndrRTAConfig config = EndrRTAConfigManager.get();
-		if (!config.allowsPracticeAssist()) {
-			return;
-		}
-
 		Entity entity = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
 		if (entity == null) {
 			return;
 		}
-		if (config.guaranteedBlazeRods && entity.getType() == EntityType.BLAZE) {
+		if (config.allowsGuaranteedBlazeRods() && entity.getType() == EntityType.BLAZE) {
 			ensureDrop(drops, Items.BLAZE_ROD);
 		}
-		if (config.guaranteedEnderPearls && entity.getType() == EntityType.ENDERMAN) {
+		if (config.allowsGuaranteedEnderPearls() && entity.getType() == EntityType.ENDERMAN) {
 			ensureDrop(drops, Items.ENDER_PEARL);
 		}
 	}

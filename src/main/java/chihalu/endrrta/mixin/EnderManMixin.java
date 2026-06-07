@@ -32,7 +32,6 @@ public class EnderManMixin {
 	}
 
 	private static boolean shouldPreventBlockCarry() {
-		return EndrRTAConfigManager.get().allowsPracticeAssist()
-				&& EndrRTAConfigManager.get().preventEndermanBlockCarry;
+		return EndrRTAConfigManager.get().allowsPreventEndermanBlockCarry();
 	}
 }

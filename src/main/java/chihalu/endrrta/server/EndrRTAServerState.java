@@ -204,7 +204,7 @@ public final class EndrRTAServerState {
 	}
 
 	private static void prepareVillageSpawn(ServerPlayer player, EndrRTAConfig config) {
-		if (!config.allowsPracticeAssist() || !config.forceVillageSpawn || player.level().dimension() != Level.OVERWORLD) {
+		if (!config.allowsForceVillageSpawn() || player.level().dimension() != Level.OVERWORLD) {
 			return;
 		}
 		if (!VILLAGE_SPAWNED.add(player.getUUID())) {
@@ -271,7 +271,7 @@ public final class EndrRTAServerState {
 	}
 
 	private static void updateRadar(ServerPlayer player, RunState run, EndrRTAConfig config) {
-		if (!config.allowsPracticeAssist() || !config.showRadar) {
+		if (!config.allowsRadar()) {
 			run.setStronghold(null);
 			run.setFortress(null);
 			run.setBastionType(BASTION_UNKNOWN);

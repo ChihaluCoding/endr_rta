@@ -30,12 +30,12 @@ public final class SeedResetWorldStarter {
 				worldName,
 				GameType.SURVIVAL,
 				new LevelSettings.DifficultySettings(Difficulty.NORMAL, config.resetHardcore, false),
-				config.resetAllowCommands,
+				config.allowsResetCommands(),
 				WorldDataConfiguration.DEFAULT
 		);
 		WorldOptions worldOptions = WorldOptions.defaultWithRandomSeed()
 				.withStructures(config.resetGenerateStructures)
-				.withBonusChest(config.resetBonusChest);
+				.withBonusChest(config.allowsResetBonusChest());
 
 		minecraft.createWorldOpenFlows().createFreshLevel(
 				worldName,

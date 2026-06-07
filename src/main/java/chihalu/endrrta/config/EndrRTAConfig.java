@@ -44,6 +44,50 @@ public class EndrRTAConfig {
 		return practiceMode;
 	}
 
+	public boolean allowsForceVillageSpawn() {
+		return allowsPracticeAssist() && forceVillageSpawn;
+	}
+
+	public boolean allowsRadar() {
+		return allowsPracticeAssist() && showRadar;
+	}
+
+	public boolean allowsBreakNearbyHayBales() {
+		return allowsPracticeAssist() && breakNearbyHayBales;
+	}
+
+	public boolean allowsAutoSmeltOres() {
+		return allowsPracticeAssist() && autoSmeltOres;
+	}
+
+	public boolean allowsUnbreakableEnderEyes() {
+		return allowsPracticeAssist() && unbreakableEnderEyes;
+	}
+
+	public boolean allowsPreventIgnoredItemPickup() {
+		return allowsPracticeAssist() && preventIgnoredItemPickup;
+	}
+
+	public boolean allowsGuaranteedBlazeRods() {
+		return allowsPracticeAssist() && guaranteedBlazeRods;
+	}
+
+	public boolean allowsGuaranteedEnderPearls() {
+		return allowsPracticeAssist() && guaranteedEnderPearls;
+	}
+
+	public boolean allowsPreventEndermanBlockCarry() {
+		return allowsPracticeAssist() && preventEndermanBlockCarry;
+	}
+
+	public boolean allowsResetBonusChest() {
+		return allowsPracticeAssist() && resetBonusChest;
+	}
+
+	public boolean allowsResetCommands() {
+		return allowsPracticeAssist() && resetAllowCommands;
+	}
+
 	public void normalize() {
 		hudBackgroundOpacity = Math.clamp(hudBackgroundOpacity, 0, 100);
 		if (ignoredPickupItems == null) {

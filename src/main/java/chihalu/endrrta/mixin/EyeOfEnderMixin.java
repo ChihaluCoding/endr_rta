@@ -28,7 +28,7 @@ public abstract class EyeOfEnderMixin {
 	@SuppressWarnings("unused")
 	@Inject(method = "tick()V", at = @At("HEAD"), cancellable = true, remap = false)
 	private void endrrta$forceDropOnFinish(CallbackInfo info) {
-		if (!EndrRTAConfigManager.get().allowsPracticeAssist() || !EndrRTAConfigManager.get().unbreakableEnderEyes) {
+		if (!EndrRTAConfigManager.get().allowsUnbreakableEnderEyes()) {
 			return;
 		}
 

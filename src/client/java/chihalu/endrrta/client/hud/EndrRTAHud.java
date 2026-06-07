@@ -203,7 +203,7 @@ public final class EndrRTAHud {
 				metrics.add(new HudMetric("ピグリン要塞", run.bastionType(), WARNING));
 			}
 		}
-		if (config.allowsPracticeAssist() && config.showRadar) {
+		if (config.allowsRadar()) {
 			if (level.dimension() == Level.OVERWORLD) {
 				RadarTarget stronghold = run == null ? null : run.stronghold();
 				boolean showStronghold = false;

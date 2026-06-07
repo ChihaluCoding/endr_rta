@@ -21,7 +21,7 @@ public final class HayBaleClusterBreaker {
 
 	public static void breakNearbyHayBales(Level level, Player player, BlockPos origin, BlockState brokenState, BlockEntity blockEntity) {
 		EndrRTAConfig config = EndrRTAConfigManager.get();
-		if (!config.allowsPracticeAssist() || !config.breakNearbyHayBales || BREAKING_CLUSTER.get()) {
+		if (!config.allowsBreakNearbyHayBales() || BREAKING_CLUSTER.get()) {
 			return;
 		}
 		if (!(level instanceof ServerLevel serverLevel) || !brokenState.is(Blocks.HAY_BLOCK)) {

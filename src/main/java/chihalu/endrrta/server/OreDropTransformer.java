@@ -19,7 +19,7 @@ public final class OreDropTransformer {
 	}
 
 	public static void replaceRawOreDrops(Holder<LootTable> holder, LootContext context, List<ItemStack> drops) {
-		if (!EndrRTAConfigManager.get().allowsPracticeAssist() || !EndrRTAConfigManager.get().autoSmeltOres) {
+		if (!EndrRTAConfigManager.get().allowsAutoSmeltOres()) {
 			return;
 		}
 
