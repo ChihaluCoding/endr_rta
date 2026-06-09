@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import chihalu.endrrta.server.PracticeSignSyncState;
 
-@Mixin(ClientPacketListener.class)
+@Mixin(value = ClientPacketListener.class, remap = false)
 public abstract class ClientPacketListenerMixin {
-	@Inject(method = "handleOpenSignEditor", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "handleOpenSignEditor", at = @At("HEAD"), cancellable = true, remap = false)
 	private void endrrta$cancelPracticeSignEditor(ClientboundOpenSignEditorPacket packet, CallbackInfo info) {
 		if (PracticeSignSyncState.hasPendingSign() || endrrta$isPracticeManagedSign(packet)) {
 			info.cancel();

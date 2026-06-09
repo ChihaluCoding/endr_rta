@@ -34,6 +34,8 @@ public final class PracticeSelectionMenu extends ChestMenu {
 	private static final float MENU_CLICK_SOUND_VOLUME = 1.0F;
 	private static final String BASTION_SCENARIO_ID = "bastion";
 	private static final String BASTION_BACK_ID = "bastion_back";
+	private static final String DIFFICULTY_BACK_ID = "difficulty_back";
+	private static final String DIFFICULTY_MENU_ID = "difficulty_menu";
 	private static final String GAME_SELECTION_ID = "game_selection";
 	private static final String MAIN_BACK_ID = "main_back";
 
@@ -100,6 +102,10 @@ public final class PracticeSelectionMenu extends ChestMenu {
 			updateToMainMenu();
 			return true;
 		}
+		if (page == MenuPage.LAUNCHER && DIFFICULTY_MENU_ID.equals(scenarioId)) {
+			updateToDifficultyMenu();
+			return true;
+		}
 		if (page == MenuPage.MAIN && BASTION_SCENARIO_ID.equals(scenarioId)) {
 			updateToBastionMenu();
 			return true;
@@ -110,6 +116,10 @@ public final class PracticeSelectionMenu extends ChestMenu {
 		}
 		if (page == MenuPage.BASTION && BASTION_BACK_ID.equals(scenarioId)) {
 			updateToMainMenu();
+			return true;
+		}
+		if (page == MenuPage.DIFFICULTY && DIFFICULTY_BACK_ID.equals(scenarioId)) {
+			updateToLauncherMenu();
 			return true;
 		}
 		if ("bastion_random".equals(scenarioId)) {
@@ -194,6 +204,13 @@ public final class PracticeSelectionMenu extends ChestMenu {
 		replaceMenuContent(createBastionMenuContainer(destinations), createBastionSlotMap(), MenuPage.BASTION);
 	}
 
+	private void updateToDifficultyMenu() {
+		if (page == MenuPage.DIFFICULTY) {
+			return;
+		}
+		replaceMenuContent(createDifficultyMenuContainer(), createDifficultySlotMap(), MenuPage.DIFFICULTY);
+	}
+
 	private void replaceMenuContent(Container newContainer, Map<Integer, String> newScenarioIdsBySlot, MenuPage newPage) {
 		for (int i = 0; i < menuContainer.getContainerSize(); i++) {
 			ItemStack stack = i < newContainer.getContainerSize() ? newContainer.getItem(i) : ItemStack.EMPTY;
@@ -244,6 +261,9 @@ public final class PracticeSelectionMenu extends ChestMenu {
 		ItemStack gameSelection = new ItemStack(Items.DIAMOND_SWORD);
 		gameSelection.set(DataComponents.CUSTOM_NAME, Component.literal("ゲーム選択"));
 		container.setItem(10, gameSelection);
+		ItemStack difficulty = new ItemStack(Items.NETHER_STAR);
+		difficulty.set(DataComponents.CUSTOM_NAME, Component.literal("難易度"));
+		container.setItem(37, difficulty);
 		return container;
 	}
 
@@ -254,6 +274,15 @@ public final class PracticeSelectionMenu extends ChestMenu {
 		addScenario(container, destinations, 14, "bastion_treasure", "宝箱部屋", Items.CHEST);
 		addScenario(container, destinations, 16, "bastion_hoglin_stables", "ホグリンの部屋", Items.HOGLIN_SPAWN_EGG);
 		addScenario(container, destinations, 40, "bastion_random", "ランダム", Items.COMPASS, true);
+		addMenuButton(container, 53, "前の画面に戻る", Items.BARRIER);
+		return container;
+	}
+
+	private static Container createDifficultyMenuContainer() {
+		SimpleContainer container = new SimpleContainer(DEFAULT_MENU_SIZE);
+		addMenuButton(container, 19, "イージー", Items.LIME_DYE);
+		addMenuButton(container, 22, "ノーマル", Items.YELLOW_DYE);
+		addMenuButton(container, 25, "ハード", Items.RED_DYE);
 		addMenuButton(container, 53, "前の画面に戻る", Items.BARRIER);
 		return container;
 	}
@@ -272,6 +301,7 @@ public final class PracticeSelectionMenu extends ChestMenu {
 	private static Map<Integer, String> createLauncherSlotMap() {
 		Map<Integer, String> slots = new HashMap<>();
 		slots.put(10, GAME_SELECTION_ID);
+		slots.put(37, DIFFICULTY_MENU_ID);
 		return Map.copyOf(slots);
 	}
 
@@ -283,6 +313,12 @@ public final class PracticeSelectionMenu extends ChestMenu {
 		slots.put(16, "bastion_hoglin_stables");
 		slots.put(40, "bastion_random");
 		slots.put(53, BASTION_BACK_ID);
+		return Map.copyOf(slots);
+	}
+
+	private static Map<Integer, String> createDifficultySlotMap() {
+		Map<Integer, String> slots = new HashMap<>();
+		slots.put(53, DIFFICULTY_BACK_ID);
 		return Map.copyOf(slots);
 	}
 
@@ -309,6 +345,7 @@ public final class PracticeSelectionMenu extends ChestMenu {
 			case LAUNCHER -> Component.literal("メニュー");
 			case MAIN -> Component.literal("ゲーム選択");
 			case BASTION -> Component.literal("ピグリン要塞");
+			case DIFFICULTY -> Component.literal("難易度");
 		};
 	}
 
@@ -320,13 +357,17 @@ public final class PracticeSelectionMenu extends ChestMenu {
 		if (firstScenario.is(Items.CRIMSON_DOOR) || menuContainer.getItem(40).is(Items.COMPASS)) {
 			return MenuPage.BASTION;
 		}
+		if (firstScenario.is(Items.LIGHT_BLUE_DYE)) {
+			return MenuPage.DIFFICULTY;
+		}
 		return MenuPage.MAIN;
 	}
 
 	private enum MenuPage {
 		LAUNCHER,
 		MAIN,
-		BASTION
+		BASTION,
+		DIFFICULTY
 	}
 
 }

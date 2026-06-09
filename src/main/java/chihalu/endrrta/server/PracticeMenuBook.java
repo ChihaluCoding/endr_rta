@@ -16,7 +16,7 @@ import chihalu.endrrta.config.EndrRTAConfig;
 import chihalu.endrrta.config.EndrRTAConfigManager;
 
 public final class PracticeMenuBook {
-	private static final String MENU_BOOK_NAME = "ゲーム選択";
+	private static final String MENU_BOOK_NAME = "メニュー";
 
 	private PracticeMenuBook() {
 	}

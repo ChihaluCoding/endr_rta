@@ -24,39 +24,40 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(AbstractContainerScreen.class)
+@Mixin(value = AbstractContainerScreen.class, remap = false)
 public abstract class AbstractContainerScreenMixin {
 	private static final int END_RTA_LABEL_COLOR = -12566464;
 	private static final String END_RTA_TITLE_MENU = "メニュー";
 	private static final String END_RTA_TITLE_GAME_SELECTION = "ゲーム選択";
 	private static final String END_RTA_TITLE_BASTION = "ピグリン要塞";
+	private static final String END_RTA_TITLE_DIFFICULTY = "難易度";
 
-	@Shadow
+	@Shadow(remap = false)
 	@Final
 	protected AbstractContainerMenu menu;
 
-	@Shadow
+	@Shadow(remap = false)
 	protected int titleLabelX;
 
-	@Shadow
+	@Shadow(remap = false)
 	protected int titleLabelY;
 
-	@Shadow
+	@Shadow(remap = false)
 	protected int inventoryLabelX;
 
-	@Shadow
+	@Shadow(remap = false)
 	protected int inventoryLabelY;
 
-	@Shadow
+	@Shadow(remap = false)
 	@Final
 	protected Component playerInventoryTitle;
 
 	private int endrrta$pendingPracticeMenuSlot = -1;
 
-	@Invoker("getHoveredSlot")
+	@Invoker(value = "getHoveredSlot", remap = false)
 	protected abstract Slot endrrta$getHoveredSlot(double mouseX, double mouseY);
 
-	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "mouseClicked(Lnet/minecraft/client/input/MouseButtonEvent;Z)Z", at = @At("HEAD"), cancellable = true, remap = false)
 	private void endrrta$registerIgnoredPickupItem(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> info) {
 		if (endrrta$handlePracticeDisplaySlotClick(event, info)) {
 			return;
@@ -75,7 +76,7 @@ public abstract class AbstractContainerScreenMixin {
 		}
 	}
 
-	@Inject(method = "mouseReleased", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "mouseReleased(Lnet/minecraft/client/input/MouseButtonEvent;)Z", at = @At("HEAD"), cancellable = true, remap = false)
 	private void endrrta$releasePracticeDisplaySlot(MouseButtonEvent event, CallbackInfoReturnable<Boolean> info) {
 		if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT || endrrta$pendingPracticeMenuSlot < 0) {
 			return;
@@ -87,7 +88,7 @@ public abstract class AbstractContainerScreenMixin {
 		info.setReturnValue(true);
 	}
 
-	@Inject(method = "mouseDragged", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "mouseDragged(Lnet/minecraft/client/input/MouseButtonEvent;DD)Z", at = @At("HEAD"), cancellable = true, remap = false)
 	private void endrrta$dragPracticeDisplaySlot(MouseButtonEvent event, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> info) {
 		if (endrrta$pendingPracticeMenuSlot >= 0) {
 			info.setReturnValue(true);
@@ -109,7 +110,7 @@ public abstract class AbstractContainerScreenMixin {
 		return true;
 	}
 
-	@Inject(method = "extractLabels", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "extractLabels", at = @At("HEAD"), cancellable = true, remap = false)
 	private void endrrta$extractPracticeMenuLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo info) {
 		Component practiceTitle = endrrta$practiceMenuTitleFromSlots();
 		if (practiceTitle == null) {
@@ -124,13 +125,17 @@ public abstract class AbstractContainerScreenMixin {
 		String screenTitle = ((Screen) (Object) this).getTitle().getString();
 		if (!END_RTA_TITLE_MENU.equals(screenTitle)
 				&& !END_RTA_TITLE_GAME_SELECTION.equals(screenTitle)
-				&& !END_RTA_TITLE_BASTION.equals(screenTitle)) {
+				&& !END_RTA_TITLE_BASTION.equals(screenTitle)
+				&& !END_RTA_TITLE_DIFFICULTY.equals(screenTitle)) {
 			return null;
 		}
 
 		ItemStack slot10 = endrrta$getMenuItem(10);
 		if (slot10.is(Items.DIAMOND_SWORD)) {
 			return Component.literal(END_RTA_TITLE_MENU);
+		}
+		if (slot10.is(Items.LIGHT_BLUE_DYE)) {
+			return Component.literal(END_RTA_TITLE_DIFFICULTY);
 		}
 		if (slot10.is(Items.CRIMSON_DOOR) || endrrta$getMenuItem(40).is(Items.COMPASS)) {
 			return Component.literal(END_RTA_TITLE_BASTION);
