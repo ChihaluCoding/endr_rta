@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "endrrta_iron_recycling",
+  "ingredients": [
+    {
+      "item": "minecraft:chain"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:iron_ingot"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "endrrta_iron_recycling",
+  "ingredients": [
+    "minecraft:soul_lantern"
+  ],
+  "result": {
+    "count": 8,
+    "id": "minecraft:iron_nugget"
+  }
+}

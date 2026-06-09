@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "endrrta_iron_recycling",
+  "ingredients": [
+    "minecraft:activator_rail"
+  ],
+  "result": {
+    "id": "minecraft:iron_ingot"
+  }
+}

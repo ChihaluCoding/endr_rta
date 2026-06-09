@@ -3,6 +3,7 @@ package chihalu.endrrta.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 
 import net.minecraft.client.KeyMapping;
@@ -17,6 +18,8 @@ import chihalu.endrrta.client.pie.PieChartAssistHandler;
 import chihalu.endrrta.client.reset.QuickResetHandler;
 import chihalu.endrrta.client.view.RtaViewAssistHandler;
 import chihalu.endrrta.config.EndrRTAConfigManager;
+import chihalu.endrrta.server.PracticeSignSyncPayload;
+import chihalu.endrrta.server.PracticeSignSyncState;
 
 public class EndrRTAClient implements ClientModInitializer {
 	private static KeyMapping quickResetKey;
@@ -32,6 +35,7 @@ public class EndrRTAClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		EndrRTAConfigManager.load();
+		ClientPlayNetworking.registerGlobalReceiver(PracticeSignSyncPayload.TYPE, (payload, context) -> PracticeSignSyncState.setPendingSign(payload.pending()));
 		quickResetKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.endrrta.quick_reset",
 				GLFW.GLFW_KEY_R,

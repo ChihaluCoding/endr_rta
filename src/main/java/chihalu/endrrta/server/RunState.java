@@ -20,6 +20,7 @@ public final class RunState {
 	private @Nullable ResourceKey<Level> lastDimension;
 	private @Nullable RadarTarget stronghold;
 	private @Nullable RadarTarget fortress;
+	private @Nullable RadarTarget warpedForestFromFortress;
 	private String bastionType = "未検出";
 	private boolean bastionFound = false;
 	private final EnumSet<@NonNull SplitType> recordedSplits = EnumSet.noneOf(SplitType.class);
@@ -101,6 +102,14 @@ public final class RunState {
 
 	public void setFortress(@Nullable RadarTarget fortress) {
 		this.fortress = fortress;
+	}
+
+	public @Nullable RadarTarget warpedForestFromFortress() {
+		return warpedForestFromFortress;
+	}
+
+	public void setWarpedForestFromFortress(@Nullable RadarTarget warpedForestFromFortress) {
+		this.warpedForestFromFortress = warpedForestFromFortress;
 	}
 
 	public String bastionType() {

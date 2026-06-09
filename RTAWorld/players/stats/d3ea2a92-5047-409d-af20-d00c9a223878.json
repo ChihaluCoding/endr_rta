@@ -1,0 +1,74 @@
+{
+  "stats": {
+    "minecraft:picked_up": {
+      "minecraft:crossbow": 2,
+      "minecraft:glass": 1,
+      "minecraft:iron_sword": 1,
+      "minecraft:copper_nautilus_armor": 196,
+      "minecraft:elytra": 1,
+      "minecraft:gold_nugget": 5,
+      "minecraft:iron_chestplate": 1
+    },
+    "minecraft:killed": {
+      "minecraft:zombified_piglin": 9
+    },
+    "minecraft:used": {
+      "minecraft:grass_block": 1,
+      "minecraft:nether_bricks": 2,
+      "minecraft:piglin_brute_spawn_egg": 2,
+      "minecraft:oak_sign": 6,
+      "minecraft:glass": 528,
+      "minecraft:chest": 21,
+      "minecraft:netherite_sword": 30,
+      "minecraft:end_stone": 2,
+      "minecraft:polished_blackstone_bricks": 3,
+      "minecraft:anvil": 1,
+      "minecraft:warped_nylium": 1,
+      "minecraft:piglin_spawn_egg": 7
+    },
+    "minecraft:dropped": {
+      "minecraft:iron_chestplate": 2,
+      "minecraft:netherite_sword": 1,
+      "minecraft:dragon_head": 98,
+      "minecraft:anvil": 1,
+      "minecraft:end_stone": 1,
+      "minecraft:polished_blackstone_bricks": 1,
+      "minecraft:iron_sword": 2,
+      "minecraft:diamond_sword": 1,
+      "minecraft:glass": 1,
+      "minecraft:end_portal_frame": 1,
+      "minecraft:netherite_chestplate": 1,
+      "minecraft:arrow": 1,
+      "minecraft:gold_nugget": 5,
+      "minecraft:obsidian": 1,
+      "minecraft:diamond_chestplate": 1,
+      "minecraft:purpur_block": 1,
+      "minecraft:piglin_head": 1,
+      "minecraft:elytra": 2,
+      "minecraft:copper_nautilus_armor": 294,
+      "minecraft:recovery_compass": 98,
+      "minecraft:nether_bricks": 1,
+      "minecraft:crossbow": 2
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 1328,
+      "minecraft:walk_one_cm": 67665,
+      "minecraft:leave_game": 1,
+      "minecraft:mob_kills": 9,
+      "minecraft:play_time": 96959,
+      "minecraft:damage_dealt": 1945,
+      "minecraft:jump": 257,
+      "minecraft:time_since_death": 1298,
+      "minecraft:drop": 29,
+      "minecraft:sprint_one_cm": 7170,
+      "minecraft:open_chest": 244,
+      "minecraft:total_world_time": 97368,
+      "minecraft:fly_one_cm": 85672,
+      "minecraft:interact_with_anvil": 24,
+      "minecraft:crouch_one_cm": 2574,
+      "minecraft:sneak_time": 874,
+      "minecraft:deaths": 5
+    }
+  },
+  "DataVersion": 4790
+}

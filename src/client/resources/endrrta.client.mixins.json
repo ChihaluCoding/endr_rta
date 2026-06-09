@@ -4,13 +4,16 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"AbstractContainerScreenMixin",
+		"ClientPacketListenerMixin",
 		"DebugScreenOverlayMixin",
 		"KeyboardHandlerAccessor",
+		"LightmapRenderStateExtractorMixin",
 		"MinecraftServerAccessor",
 		"MouseHandlerMixin",
 		"PauseScreenAccessor",
 		"PauseScreenMixin",
-		"ProfilerPieChartAccessor"
+		"ProfilerPieChartAccessor",
+		"TitleScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

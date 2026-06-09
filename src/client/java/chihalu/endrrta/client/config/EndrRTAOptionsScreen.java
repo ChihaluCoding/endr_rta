@@ -41,6 +41,14 @@ public class EndrRTAOptionsScreen extends Screen {
 	private static final int PANEL_ACCENT = 0xFFFFD166;
 	private static final int TITLE = 0xFFFFFFFF;
 	private static final int SUBTITLE = 0xFFB8C3CF;
+	private static final String[] PRACTICE_SCENARIO_IDS = {
+			"none",
+			"nether_fortress",
+			"bastion",
+			"warped_forest_pearls",
+			"lava_pool_portal",
+			"ender_dragon"
+	};
 
 	private final @Nullable Screen parent;
 	private SettingsCategory selectedCategory = SettingsCategory.BASIC;
@@ -109,6 +117,7 @@ public class EndrRTAOptionsScreen extends Screen {
 		switch (selectedSubcategory) {
 			case GENERAL -> addGeneralSettings(config, x, y);
 			case TIMER -> addTimerSettings(config, x, y);
+			case PRACTICE_SCENARIO -> addPracticeScenarioSettings(config, x, y);
 			case START_ASSIST -> addStartAssistSettings(config, x, y);
 			case STRUCTURE_ASSIST -> addStructureAssistSettings(config, x, y);
 			case ITEM_DROPS -> addItemDropSettings(config, x, y);
@@ -129,15 +138,26 @@ public class EndrRTAOptionsScreen extends Screen {
 	private void addGeneralSettings(EndrRTAConfig config, int x, int y) {
 		addToggle(x, y, "練習モード", () -> config.practiceMode, value -> config.practiceMode = value);
 		addToggle(x + 160, y, "HUD表示", () -> config.showHud, value -> config.showHud = value);
+		y += ROW_SPACING;
+		addToggle(x, y, "フルブライト", () -> config.fullBright, value -> config.fullBright = value);
 	}
 
 	private void addTimerSettings(EndrRTAConfig config, int x, int y) {
 		addToggle(x, y, "自動スプリット", () -> config.autoSplits, value -> config.autoSplits = value);
 	}
 
+	private void addPracticeScenarioSettings(EndrRTAConfig config, int x, int y) {
+		addRenderableWidget(Button.builder(practiceScenarioMessage(config.practiceScenario), button -> {
+			config.practiceScenario = nextPracticeScenario(config.practiceScenario);
+			button.setMessage(practiceScenarioMessage(config.practiceScenario));
+		}).bounds(x, y, 310, 20).build());
+	}
+
 	private void addStartAssistSettings(EndrRTAConfig config, int x, int y) {
 		addToggle(x, y, "村へ初期移動", () -> config.forceVillageSpawn, value -> config.forceVillageSpawn = value);
 		addToggle(x + 160, y, "干草まとめ破壊", () -> config.breakNearbyHayBales, value -> config.breakNearbyHayBales = value);
+		y += ROW_SPACING;
+		addToggle(x, y, "初期チェスト", () -> config.placePracticeStartChest, value -> config.placePracticeStartChest = value);
 	}
 
 	private void addStructureAssistSettings(EndrRTAConfig config, int x, int y) {
@@ -208,12 +228,37 @@ public class EndrRTAOptionsScreen extends Screen {
 				.replace("-", "");
 	}
 
+	private static Component practiceScenarioMessage(String id) {
+		return Component.literal("個別練習: " + practiceScenarioLabel(id));
+	}
+
+	private static String nextPracticeScenario(String current) {
+		for (int i = 0; i < PRACTICE_SCENARIO_IDS.length; i++) {
+			if (PRACTICE_SCENARIO_IDS[i].equals(current)) {
+				return PRACTICE_SCENARIO_IDS[(i + 1) % PRACTICE_SCENARIO_IDS.length];
+			}
+		}
+		return PRACTICE_SCENARIO_IDS[0];
+	}
+
+	private static String practiceScenarioLabel(String id) {
+		return switch (id) {
+			case "nether_fortress" -> "ネザー要塞";
+			case "bastion" -> "ピグリン要塞";
+			case "warped_forest_pearls" -> "歪んだ森エンパ";
+			case "lava_pool_portal" -> "マグマ溜まりゲート";
+			case "ender_dragon" -> "エンドラ討伐";
+			default -> "なし";
+		};
+	}
+
 	private void addEyeSettings(EndrRTAConfig config, int x, int y) {
 		addToggle(x, y, "エンダーアイ保護", () -> config.unbreakableEnderEyes, value -> config.unbreakableEnderEyes = value);
 	}
 
 	private void addEndermanSettings(EndrRTAConfig config, int x, int y) {
 		addToggle(x, y, "エンダーマンブロック持ち禁止", () -> config.preventEndermanBlockCarry, value -> config.preventEndermanBlockCarry = value);
+		addToggle(x + 160, y, "青森ボート誘導", () -> config.guideEndermenToBoats, value -> config.guideEndermenToBoats = value);
 	}
 
 	private void addHudInfoSettings(EndrRTAConfig config, int x, int y) {
@@ -238,6 +283,8 @@ public class EndrRTAOptionsScreen extends Screen {
 			512,
 			value -> config.structureFoundDistance = value
 		));
+		y += ROW_SPACING;
+		addToggle(x, y, "要塞青森座標", () -> config.showFortressWarpedDistance, value -> config.showFortressWarpedDistance = value);
 	}
 
 	private void addHudStyleSettings(EndrRTAConfig config, int x, int y) {
@@ -353,6 +400,7 @@ public class EndrRTAOptionsScreen extends Screen {
 	private enum SettingsSubcategory {
 		GENERAL(SettingsCategory.BASIC, "基本", "モードと基本表示を設定します"),
 		TIMER(SettingsCategory.BASIC, "タイマー", "自動スプリットを設定します"),
+		PRACTICE_SCENARIO(SettingsCategory.BASIC, "個別練習", "練習する区間を選びます"),
 		START_ASSIST(SettingsCategory.START, "開始補助", "開始直後の補助を設定します"),
 		STRUCTURE_ASSIST(SettingsCategory.START, "構造物", "構造物探索の補助を設定します"),
 		ITEM_DROPS(SettingsCategory.DROPS, "ドロップ", "練習用ドロップを設定します"),

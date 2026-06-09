@@ -1,0 +1,18 @@
+{
+  "runs": {
+    "d3ea2a92-5047-409d-af20-d00c9a223878": {
+      "running": true,
+      "stopped": false,
+      "elapsedRtaMillis": 4868370,
+      "igtTicks": 96959,
+      "lastDimension": "minecraft:overworld",
+      "splits": []
+    }
+  },
+  "villageSpawnedPlayers": [
+    "d3ea2a92-5047-409d-af20-d00c9a223878"
+  ],
+  "practiceStartChestPlayers": [
+    "d3ea2a92-5047-409d-af20-d00c9a223878"
+  ]
+}

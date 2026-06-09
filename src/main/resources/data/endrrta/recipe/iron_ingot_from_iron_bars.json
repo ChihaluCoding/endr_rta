@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "endrrta_iron_recycling",
+  "ingredients": [
+    "minecraft:iron_bars",
+    "minecraft:iron_bars",
+    "minecraft:iron_bars",
+    "minecraft:iron_bars",
+    "minecraft:iron_bars",
+    "minecraft:iron_bars",
+    "minecraft:iron_bars",
+    "minecraft:iron_bars"
+  ],
+  "result": {
+    "count": 3,
+    "id": "minecraft:iron_ingot"
+  }
+}

@@ -22,9 +22,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import chihalu.endrrta.client.practice.PracticeHubClientState;
 import chihalu.endrrta.client.pie.PieChartAssistHandler;
 import chihalu.endrrta.config.EndrRTAConfig;
 import chihalu.endrrta.config.EndrRTAConfigManager;
@@ -56,6 +58,10 @@ public final class EndrRTAHud {
 	private static final int ROW_HEIGHT = 12;
 	private static final int PANEL_PADDING = 10;
 	private static final long BIOME_NAME_SWITCH_MILLIS = 3_000L;
+	private static final String WARPED_FOREST_BIOME = "warped_forest";
+	private static final double ENDERMAN_HUD_RADIUS = 200.0D;
+	private static final double ENDERMAN_HUD_RADIUS_SQR = ENDERMAN_HUD_RADIUS * ENDERMAN_HUD_RADIUS;
+	private static final int FORTRESS_WARPED_CLOSE_DISTANCE = 384;
 	private static final Map<String, String> JAPANESE_BIOME_NAMES = createJapaneseBiomeNames();
 	private static int cachedPanelOpacity = -1;
 	private static int cachedPanelTop = PANEL_TOP_RGB;
@@ -70,6 +76,11 @@ public final class EndrRTAHud {
 		LocalPlayer player = minecraft.player;
 		ClientLevel level = minecraft.level;
 		if (!shouldRender(minecraft, config, player, level)) {
+			return;
+		}
+
+		if (isPracticeHubWorld(minecraft, config)) {
+			renderPracticeHubPanel(graphics, minecraft.font, Objects.requireNonNull(player), Objects.requireNonNull(level), config);
 			return;
 		}
 
@@ -104,6 +115,51 @@ public final class EndrRTAHud {
 			return false;
 		}
 		return !debugTextVisible(minecraft) && !minecraft.getDebugOverlay().showProfilerChart();
+	}
+
+	private static boolean isPracticeHubWorld(Minecraft minecraft, EndrRTAConfig config) {
+		if (PracticeHubClientState.isActive()) {
+			return true;
+		}
+		if (config.practiceMode && "none".equals(config.practiceScenario)) {
+			return true;
+		}
+		MinecraftServer server = minecraft.getSingleplayerServer();
+		if (server == null) {
+			return false;
+		}
+		if (config.practiceHubWorldId.equals(server.getWorldData().getLevelName())) {
+			return true;
+		}
+		return config.practiceHubWorldId.equals(server.getWorldPath(LevelResource.ROOT).getFileName().toString());
+	}
+
+	private static void renderPracticeHubPanel(GuiGraphicsExtractor graphics, Font font, LocalPlayer player, ClientLevel level, EndrRTAConfig config) {
+		BlockPos pos = Objects.requireNonNull(player.blockPosition(), "player block position");
+		List<@NonNull HudMetric> rows = List.of(
+				new HudMetric("ワールド", config.practiceHubWorldId, ACCENT),
+				new HudMetric("選択中", practiceScenarioLabel(config.practiceScenario), INFO),
+				new HudMetric("現在地", "%d %d %d".formatted(pos.getX(), pos.getY(), pos.getZ()), TEXT),
+				new HudMetric("場所", dimensionLabel(level.dimension()), MUTED),
+				new HudMetric("操作", "本で練習メニュー", SUCCESS)
+		);
+		int height = 44 + rows.size() * ROW_HEIGHT;
+		int x = 8;
+		int y = 8;
+		int opacity = Math.clamp(config.hudBackgroundOpacity, 0, 100);
+
+		if (opacity > 0) {
+			updatePanelColors(opacity);
+			graphics.fill(x + 3, y + 3, x + PANEL_WIDTH + 3, y + height + 3, SHADOW);
+			graphics.fillGradient(x, y, x + PANEL_WIDTH, y + height, cachedPanelTop, cachedPanelBottom);
+		}
+		graphics.outline(x, y, PANEL_WIDTH, height, BORDER);
+		graphics.fill(x, y, x + 4, y + height, PRACTICE_RAIL);
+		graphics.text(font, "EnderRTA", x + 12, y + 7, ACCENT, true);
+		String mode = "練習ハブ";
+		graphics.text(font, mode, x + PANEL_WIDTH - 12 - font.width(mode), y + 7, SUCCESS, true);
+		graphics.fill(x + 12, y + 21, x + PANEL_WIDTH - 12, y + 22, DIVIDER);
+		drawRows(graphics, font, rows, x, y + 34);
 	}
 
 	private static void updatePanelColors(int opacityPercent) {
@@ -185,6 +241,10 @@ public final class EndrRTAHud {
 		List<@NonNull HudMetric> metrics = new ArrayList<>();
 		List<@NonNull HudMetric> alerts = new ArrayList<>();
 
+		if (config.allowsPracticeScenario()) {
+			metrics.add(new HudMetric("個別練習", practiceScenarioLabel(config.practiceScenario), ACCENT));
+		}
+
 		BlockPos pos = Objects.requireNonNull(player.blockPosition(), "player block position");
 		if (config.showCoordinateConversion) {
 			metrics.add(convertedCoordinateMetric(level.dimension(), pos));
@@ -194,6 +254,9 @@ public final class EndrRTAHud {
 		}
 		if (config.showLightLevel) {
 			metrics.add(new HudMetric("明るさ", String.valueOf(level.getMaxLocalRawBrightness(pos)), INFO));
+		}
+		if (isWarpedForest(level, pos)) {
+			metrics.add(endermanMetric(level, player));
 		}
 		if (config.showCrystalCount && level.dimension() == Level.END) {
 			metrics.add(new HudMetric("クリスタル", String.valueOf(countEndCrystals(level)), ACCENT));
@@ -215,9 +278,12 @@ public final class EndrRTAHud {
 				RadarTarget fortress = run == null ? null : run.fortress();
 				boolean showFortress = false;
 				if (fortress != null && run != null) {
-					showFortress = fortress.distance() <= config.structureFoundDistance || run.hasRecordedSplit(chihalu.endrrta.server.SplitType.NETHER_FORTRESS_FOUND);
+					showFortress = true;
 				}
 				addRadarMetric(metrics, "ネザー要塞", pos, showFortress ? fortress : null);
+				if (config.allowsShowFortressWarpedDistance()) {
+					addFortressWarpedMetric(metrics, pos, run == null ? null : run.warpedForestFromFortress());
+				}
 			}
 		}
 		// 競技モードの警告表示は不要のため削除
@@ -258,6 +324,34 @@ public final class EndrRTAHud {
 		return new HudMetric("チャンク内", Math.floorMod(pos.getX(), 16) + ", " + Math.floorMod(pos.getZ(), 16), INFO);
 	}
 
+	private static String practiceScenarioLabel(String id) {
+		return switch (id) {
+			case "nether_fortress" -> "ネザー要塞";
+			case "bastion" -> "ピグリン要塞";
+			case "bastion_housing" -> "住居";
+			case "bastion_bridge" -> "橋";
+			case "bastion_treasure" -> "宝箱部屋";
+			case "bastion_hoglin_stables" -> "ホグリンの部屋";
+			case "warped_forest_pearls" -> "歪んだ森エンパ";
+			case "lava_pool_portal" -> "マグマ溜まりゲート";
+			case "ender_dragon" -> "エンドラ討伐";
+			default -> "なし";
+		};
+	}
+
+	private static String dimensionLabel(ResourceKey<Level> dimension) {
+		if (dimension == Level.OVERWORLD) {
+			return "オーバーワールド";
+		}
+		if (dimension == Level.NETHER) {
+			return "ネザー";
+		}
+		if (dimension == Level.END) {
+			return "エンド";
+		}
+		return dimension.identifier().toString();
+	}
+
 	private static boolean chunkBordersVisible(Minecraft minecraft) {
 		return minecraft.debugEntries.isCurrentlyEnabled(DebugScreenEntries.CHUNK_BORDERS);
 	}
@@ -269,6 +363,16 @@ public final class EndrRTAHud {
 	}
 
 	private static String biomeName(ClientLevel level, @NonNull BlockPos pos) {
+		Identifier id = biomeId(level, pos);
+		String path = biomePath(id);
+		return shouldShowJapaneseBiomeName() ? JAPANESE_BIOME_NAMES.getOrDefault(path, readableIdentifier(id)) : readableIdentifier(id);
+	}
+
+	private static boolean isWarpedForest(ClientLevel level, @NonNull BlockPos pos) {
+		return WARPED_FOREST_BIOME.equals(biomePath(biomeId(level, pos)));
+	}
+
+	private static Identifier biomeId(ClientLevel level, @NonNull BlockPos pos) {
 		Identifier id = level.getBiome(pos)
 				.unwrapKey()
 				.map(ResourceKey::identifier)
@@ -276,8 +380,7 @@ public final class EndrRTAHud {
 					Identifier fallbackId = level.registryAccess().lookupOrThrow(Registries.BIOME).getKey(level.getBiome(pos).value());
 					return fallbackId == null ? Identifier.withDefaultNamespace("unknown") : fallbackId;
 				});
-		String path = biomePath(id);
-		return shouldShowJapaneseBiomeName() ? JAPANESE_BIOME_NAMES.getOrDefault(path, readableIdentifier(id)) : readableIdentifier(id);
+		return id;
 	}
 
 	private static String readableIdentifier(Identifier id) {
@@ -386,6 +489,42 @@ public final class EndrRTAHud {
 			}
 		}
 		return count;
+	}
+
+	private static HudMetric endermanMetric(ClientLevel level, LocalPlayer player) {
+		int count = 0;
+		double nearestDistanceSqr = Double.MAX_VALUE;
+		for (Entity entity : level.entitiesForRendering()) {
+			if (entity.getType() != EntityType.ENDERMAN || !entity.isAlive()) {
+				continue;
+			}
+			double distanceSqr = player.distanceToSqr(entity);
+			if (distanceSqr > ENDERMAN_HUD_RADIUS_SQR) {
+				continue;
+			}
+			count++;
+			nearestDistanceSqr = Math.min(nearestDistanceSqr, distanceSqr);
+		}
+
+		String nearest = count == 0 ? "--" : String.valueOf((int) Math.round(Math.sqrt(nearestDistanceSqr)));
+		return new HudMetric("エンダーマン", count + "体 / " + nearest + "m", count == 0 ? MUTED : WARNING);
+	}
+
+	private static void addFortressWarpedMetric(List<@NonNull HudMetric> metrics, @NonNull BlockPos playerPos, @Nullable RadarTarget warpedForest) {
+		if (warpedForest == null) {
+			metrics.add(new HudMetric("青森", "????", MUTED));
+			return;
+		}
+
+		int tx = warpedForest.pos().getX();
+		int tz = warpedForest.pos().getZ();
+		int distance = (int) Math.round(Math.sqrt(playerPos.distSqr(warpedForest.pos())));
+		boolean close = warpedForest.distance() <= FORTRESS_WARPED_CLOSE_DISTANCE;
+		metrics.add(new HudMetric(
+				"青森",
+				"%d %d %dm".formatted(tx, tz, distance),
+				close ? SUCCESS : WARNING
+		));
 	}
 
 	private static void addRadarMetric(List<@NonNull HudMetric> metrics, String label, @NonNull BlockPos playerPos, @Nullable RadarTarget target) {
